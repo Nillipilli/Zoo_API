@@ -3,11 +3,11 @@ import datetime
 
 
 class Animal:
-    def __init__(self, age: int, species_name: str, common_name: str) -> None:
+    def __init__(self, species_name: str, common_name: str, age: int) -> None:
         self.id: str = str(uuid.uuid4())
-        self.age = age
         self.species_name = species_name
         self.common_name = common_name
+        self.age = age
         self.enclosure: Enclosure | None = None
         self.caretaker: Caretaker | None = None
         self.feeding_record: list[str] = []
