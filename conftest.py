@@ -10,12 +10,12 @@ def zoo1() -> Zoo:
 
 @pytest.fixture
 def animal1() -> Animal:
-    return Animal("Panthera tigris", "Frodo", 12)
+    return Animal("Panthera tigris", "Tiger", 12)
 
 
 @pytest.fixture
 def animal2() -> Animal:
-    return Animal("Testudinata", "Sam", 5)
+    return Animal("Testudinata", "Schildkröte", 5)
 
 
 @pytest.fixture(scope='session')
