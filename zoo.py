@@ -1,14 +1,17 @@
-class Zoo:
-    def __init__(self):
-        self.animals = []
+from animal import Animal, Caretaker, Enclosure
 
-    def addAnimal(self, animal):
+
+class Zoo:
+    def __init__(self) -> None:
+        self.animals: list[Animal] = []
+
+    def add_animal(self, animal: Animal) -> None:
         self.animals.append(animal)
 
-    def removeAnimal(self, animal):
+    def remove_animal(self, animal: Animal) -> None:
         self.animals.remove(animal)
 
-    def getAnimal(self, animal_id):
+    def get_animal(self, animal_id: str) -> Animal | None:
         for animal in self.animals:
-            if animal.animal_id == animal_id:
+            if animal.id == animal_id:
                 return animal
