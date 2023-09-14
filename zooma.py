@@ -13,21 +13,25 @@ app.json = CustomJSONProvider(app)
 api = Api(app)
 api.title = 'Zooma'
 
-animal_parser = reqparse.RequestParser()
-animal_parser.add_argument('species_name', type=str, required=True,
-                           help='The scientific name of the animal. For example \'Panthera tigris\'')
-animal_parser.add_argument('common_name', type=str, required=True,
-                           help='The common name of the animal. For example \'Tiger\'')
-animal_parser.add_argument('age', type=int, required=True,
-                           help='The age of the animal. For example \'12\'')
+create_animal_parser = reqparse.RequestParser()
+create_animal_parser.add_argument('species_name', type=str, required=True,
+                                  help='The scientific name of the animal. For example \'Panthera tigris\'')
+create_animal_parser.add_argument('common_name', type=str, required=True,
+                                  help='The common name of the animal. For example \'Tiger\'')
+create_animal_parser.add_argument('age', type=int, required=True,
+                                  help='The age of the animal. For example \'12\'')
+
+set_home_parser = reqparse.RequestParser()
+set_home_parser.add_argument('enclosure_id', type=str, required=True,
+                             help='The ID of the enclosure where the animal will live. For example \'bc889d3a-f378-416c-9c88-2dae19fc0f3c\'')
 
 
 @api.route('/animal')
 class CreateAnimal(Resource):
-    @api.doc(parser=animal_parser)
+    @api.doc(parser=create_animal_parser)
     def post(self):
         # get the post parameters
-        args = animal_parser.parse_args()
+        args = create_animal_parser.parse_args()
         species_name = args['species_name']
         common_name = args['common_name']
         age = args['age']
@@ -57,18 +61,43 @@ class AnimalID(Resource):
 @api.route('/animals')
 class AllAnimals(Resource):
     def get(self):
-        return jsonify(my_zoo.animals)
+        return jsonify(my_zoo.get_all_animals())
 
 
-# @api.route('/animals/<animal_id>/feed')
-# class FeedAnimal(Resource):
-#     def post(self, animal_id):
-#         targeted_animal = my_zoo.get_animal(animal_id)
-#         if not targeted_animal:
-#             return jsonify("Animal with ID {animal_id} was not found")
-#         targeted_animal.feed()
-#         return jsonify(targeted_animal)
+@api.route('/animals/<animal_id>/feed')
+class FeedAnimal(Resource):
+    def post(self, animal_id):
+        targeted_animal = my_zoo.get_animal(animal_id)
+        if not targeted_animal:
+            return jsonify(f'Animal with ID {animal_id} has not been found')
+        targeted_animal.feed()
+        return jsonify(targeted_animal)
+
+
+@api.route('/animals/<animal_id>/vet')
+class VetAnimal(Resource):
+    def post(self, animal_id):
+        targeted_animal = my_zoo.get_animal(animal_id)
+        if not targeted_animal:
+            return jsonify(f'Animal with ID {animal_id} has not been found')
+        targeted_animal.vet()
+        return jsonify(targeted_animal)
+
+
+@api.route('/animals/<animal_id>/home')
+class SetHomeAnimal(Resource):
+    def post(self, animal_id):
+        args = set_home_parser.parse_args()
+        enclosure_id = args['enclosure_id']
+        targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
+        if not targeted_enclosure:
+            return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
+        targeted_animal = my_zoo.get_animal(animal_id)
+        if not targeted_animal:
+            return jsonify(f'Animal with ID {animal_id} has not been found')
+        targeted_animal.set_home(enclosure_id)
+        return jsonify(targeted_animal)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=7890)
+    app.run(debug=False, port=7890)
