@@ -64,7 +64,7 @@ class AllAnimals(Resource):
         return jsonify(my_zoo.get_all_animals())
 
 
-@api.route('/animals/<animal_id>/feed')
+@api.route('/animal/<animal_id>/feed')
 class FeedAnimal(Resource):
     def post(self, animal_id):
         targeted_animal = my_zoo.get_animal(animal_id)
@@ -74,7 +74,7 @@ class FeedAnimal(Resource):
         return jsonify(targeted_animal)
 
 
-@api.route('/animals/<animal_id>/vet')
+@api.route('/animal/<animal_id>/vet')
 class VetAnimal(Resource):
     def post(self, animal_id):
         targeted_animal = my_zoo.get_animal(animal_id)
@@ -84,7 +84,7 @@ class VetAnimal(Resource):
         return jsonify(targeted_animal)
 
 
-@api.route('/animals/<animal_id>/home')
+@api.route('/animal/<animal_id>/home')
 class SetHomeAnimal(Resource):
     def post(self, animal_id):
         args = set_home_parser.parse_args()
