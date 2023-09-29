@@ -35,6 +35,9 @@ class CreateAnimal(Resource):
         species_name = args['species_name']
         common_name = args['common_name']
         age = args['age']
+        
+        if age < 0:
+            return jsonify(f'Enter a valid age')
 
         # create a new animal object
         new_animal = Animal(species_name, common_name, age)
