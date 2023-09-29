@@ -1,6 +1,7 @@
 # All fixtures in this file can be used by every test file without
 # importing anything.
 
+import uuid
 import pytest
 from zoo import Zoo
 from zoo_objects import Animal, Caretaker, Enclosure
@@ -29,3 +30,8 @@ def animal3() -> Animal:
 @pytest.fixture(scope='session')
 def base_url() -> str:
     return 'http://127.0.0.1:7890'
+
+
+@pytest.fixture(scope='session')
+def unknown_id() -> str:
+    return str(uuid.uuid4())

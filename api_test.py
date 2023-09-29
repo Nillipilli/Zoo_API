@@ -119,15 +119,14 @@ class TestZoo:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
 
-    def test_get_animal_info_wrong_id(self, base_url, post_animal1):
+    def test_get_animal_info_unknown_id(self, base_url, unknown_id, post_animal1):
         """Test retrieving information about an animal that does not 
         exist."""
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 1
 
-        # not existing ID
         animal_data = json.loads(requests.get(
-            base_url + '/animal/bc889d3a-f378-416c-9c88-2dae19fc0f3c').content)
+            base_url + f'/animal/{unknown_id}').content)
         assert animal_data is None
 
         for animal_dict in animals:
@@ -170,10 +169,10 @@ class TestZoo:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
 
-    def test_feed_animal_wrong_id(self, base_url):
+    def test_feed_animal_unknown_id(self, base_url, unknown_id):
         """Test trying to feed an animal that does not exist."""
         r = requests.post(
-            base_url + '/animal/bc889d3a-f378-416c-9c88-2dae19fc0f3c/feed')
+            base_url + f'/animal/{unknown_id}/feed')
         b = r.content
-        message = json.loads(
-            b) == f'Animal with ID bc889d3a-f378-416c-9c88-2dae19fc0f3c has not been found'
+        message = json.loads(b)
+        assert message == f'Animal with ID {unknown_id} has not been found'
