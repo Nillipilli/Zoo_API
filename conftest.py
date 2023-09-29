@@ -1,3 +1,6 @@
+# All fixtures in this file can be used by every test file without
+# importing anything.
+
 import pytest
 from zoo import Zoo
 from animal import Animal, Caretaker, Enclosure
