@@ -50,6 +50,7 @@ class CreateAnimal(Resource):
 @api.route('/animal/<animal_id>')
 class AnimalID(Resource):
     def get(self, animal_id):
+        # returns None when no animal with the given ID exists
         search_result = my_zoo.get_animal(animal_id)
         return jsonify(search_result)
 
