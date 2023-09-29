@@ -1,6 +1,6 @@
 import pytest
 from zoo import Zoo
-from animal import Animal
+from zoo_objects import Animal
 
 
 def test_add_animals(zoo1: Zoo, animal1: Animal, animal2: Animal):

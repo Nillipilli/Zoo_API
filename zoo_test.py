@@ -1,7 +1,7 @@
 import json
 import pytest
 import requests
-from animal import Animal
+from zoo_objects import Animal
 
 
 @pytest.fixture

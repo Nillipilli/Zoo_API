@@ -3,7 +3,7 @@
 
 import pytest
 from zoo import Zoo
-from animal import Animal, Caretaker, Enclosure
+from zoo_objects import Animal, Caretaker, Enclosure
 
 
 @pytest.fixture

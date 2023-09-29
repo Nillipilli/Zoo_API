@@ -1,4 +1,4 @@
-from animal import Animal, Caretaker, Enclosure
+from zoo_objects import Animal, Caretaker, Enclosure
 
 
 class Zoo:

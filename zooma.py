@@ -3,7 +3,7 @@ from flask_restx import Api, reqparse, Resource
 
 from zoo import Zoo
 from zoo_json_utils import CustomJSONProvider
-from animal import Animal, Caretaker, Enclosure
+from zoo_objects import Animal, Caretaker, Enclosure
 
 my_zoo = Zoo()
 
