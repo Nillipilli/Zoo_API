@@ -7,8 +7,8 @@ from zoo_objects import Animal, Caretaker, Enclosure
 
 my_zoo = Zoo()
 
+# had to change how json gets handled using this post: https://shorturl.at/qEJZ6
 app = Flask(__name__)
-# had to change this using this post: https://shorturl.at/qEJZ6
 app.json = CustomJSONProvider(app)
 api = Api(app)
 api.title = 'Zooma'
@@ -30,7 +30,7 @@ set_home_parser.add_argument('enclosure_id', type=str, required=True,
 class CreateAnimal(Resource):
     @api.doc(parser=create_animal_parser)
     def post(self):
-        # get the post parameters
+        # get the parameters
         args = create_animal_parser.parse_args()
         species_name = args['species_name']
         common_name = args['common_name']

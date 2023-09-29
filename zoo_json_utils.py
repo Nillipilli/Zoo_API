@@ -4,7 +4,7 @@ from json import JSONEncoder
 from flask.json.provider import JSONProvider
 
 
-# had to add this using this post: https://shorturl.at/qEJZ6
+# had to add this class using this post: https://shorturl.at/qEJZ6
 class CustomJSONProvider(JSONProvider):
 
     def dumps(self, obj, **kwargs):
