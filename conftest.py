@@ -3,6 +3,7 @@
 
 import uuid
 import pytest
+
 from zoo import Zoo
 from zoo_objects import Animal, Caretaker, Enclosure
 
@@ -35,3 +36,18 @@ def base_url() -> str:
 @pytest.fixture(scope='session')
 def unknown_id() -> str:
     return str(uuid.uuid4())
+
+
+@pytest.fixture
+def enclosure1() -> Enclosure:
+    return Enclosure('Cave1', 125)
+
+
+@pytest.fixture
+def enclosure2() -> Enclosure:
+    return Enclosure('Aquarium5', 500.5)
+
+
+@pytest.fixture
+def enclosure3() -> Enclosure:
+    return Enclosure('Enclosure753', 4.123)
