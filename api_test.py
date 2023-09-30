@@ -88,6 +88,17 @@ class TestZoo:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
 
+    def test_add_animal_with_negative_age(self, base_url):
+        """Test adding an animal with a negative age to the zoo."""
+        age = -1
+        animal_data = {'species_name': 'Panthera tigris',
+                       'common_name': 'Tiger',
+                       'age': age}
+        r = requests.post(base_url + '/animal', data=animal_data)
+        b = r.content
+        message = json.loads(b)
+        assert message == f'An age of {age} is not valid'
+        
     def test_get_all_animals_empty_zoo(self, base_url):
         """Test retrieving all animals of an empty zoo."""
         animals = json.loads(requests.get(base_url + '/animals').content)
@@ -175,7 +186,7 @@ class TestZoo:
         b = r.content
         message = json.loads(b)
         assert message == f'Animal with ID {unknown_id} has not been found'
-        
+
     def test_vet_animal(self, base_url, post_animal1):
         """Test performing a medical checkup on an animal and see if it
         gets added to the animals' medical record."""
