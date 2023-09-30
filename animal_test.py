@@ -1,4 +1,6 @@
 import pytest
+from datetime import datetime
+
 from zoo import Zoo
 from zoo_objects import Animal
 
@@ -93,6 +95,7 @@ def test_feed_animal(zoo1: Zoo, animal1: Animal):
     animal1.feed()
 
     assert (len(animal1.feeding_record) == 1)
+    assert isinstance(animal1.feeding_record[0], datetime)
 
 
 def test_feed_animal_often(zoo1: Zoo, animal1: Animal):
@@ -105,3 +108,28 @@ def test_feed_animal_often(zoo1: Zoo, animal1: Animal):
     animal1.feed()
 
     assert (len(animal1.feeding_record) == 5)
+    for record in animal1.feeding_record:
+        assert isinstance(record, datetime)
+
+
+def test_vet_animal(zoo1: Zoo, animal1: Animal):
+    """Test vet an animal once."""
+    zoo1.add_animal(animal1)
+    animal1.vet()
+
+    assert (len(animal1.medical_record) == 1)
+    assert isinstance(animal1.medical_record[0], datetime)
+
+
+def test_vet_animal_often(zoo1: Zoo, animal1: Animal):
+    """Test vet an animal multiple_times."""
+    zoo1.add_animal(animal1)
+    animal1.vet()
+    animal1.vet()
+    animal1.vet()
+    animal1.vet()
+    animal1.vet()
+
+    assert (len(animal1.medical_record) == 5)
+    for record in animal1.medical_record:
+        assert isinstance(record, datetime)
