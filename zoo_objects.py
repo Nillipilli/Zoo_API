@@ -72,10 +72,10 @@ class Caretaker:
 
 
 class Enclosure:
-    def __init__(self, name: str, space: float) -> None:
+    def __init__(self, name: str, area: float) -> None:
         self.id: str = str(uuid.uuid4())
         self.name = name
-        self.space = space
+        self.area = area
         self.animals: list[Animal] = []
         self.cleaning_record: list[str] = []
 

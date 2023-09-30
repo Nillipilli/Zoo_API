@@ -97,7 +97,7 @@ class TestZoo:
         r = requests.post(base_url + '/animal', data=animal_data)
         b = r.content
         message = json.loads(b)
-        assert message == f'An age of {age} is not valid'
+        assert message == f'An age of {age} is not possible'
         
     def test_get_all_animals_empty_zoo(self, base_url):
         """Test retrieving all animals of an empty zoo."""

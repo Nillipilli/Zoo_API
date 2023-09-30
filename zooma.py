@@ -25,6 +25,12 @@ set_home_parser = reqparse.RequestParser()
 set_home_parser.add_argument('enclosure_id', type=str, required=True,
                              help='The ID of the enclosure where the animal will live. For example \'bc889d3a-f378-416c-9c88-2dae19fc0f3c\'')
 
+create_enclosure_parser = reqparse.RequestParser()
+create_enclosure_parser.add_argument('name', type=str, required=True,
+                                     help='The name of the enclosure. For example \'cave1\'')
+create_enclosure_parser.add_argument('area', type=float, required=True,
+                                     help='The total area of the enclosure in square meters. For example \'25.5\'')
+
 
 @api.route('/animal')
 class CreateAnimal(Resource):
@@ -35,9 +41,9 @@ class CreateAnimal(Resource):
         species_name = args['species_name']
         common_name = args['common_name']
         age = args['age']
-        
+
         if age < 0:
-            return jsonify(f'Enter a valid age')
+            return jsonify(f'An age of {age} is not possible')
 
         # create a new animal object
         new_animal = Animal(species_name, common_name, age)
@@ -93,17 +99,32 @@ class VetAnimal(Resource):
 #     def post(self, animal_id):
 #         args = set_home_parser.parse_args()
 #         enclosure_id = args['enclosure_id']
-        
+
 #         targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
 #         if not targeted_enclosure:
 #             return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
-        
+
 #         targeted_animal = my_zoo.get_animal(animal_id)
 #         if not targeted_animal:
 #             return jsonify(f'Animal with ID {animal_id} has not been found')
-        
+
 #         targeted_animal.set_home(enclosure_id)
 #         return jsonify(targeted_animal)
+
+@api.route('/enclosure')
+class CreateEnclosure(Resource):
+    @api.doc(parser=create_enclosure_parser)
+    def post(self):
+        args = create_enclosure_parser.parse_args()
+        name = args['name']
+        area = args['area']
+
+        if area <= 0:
+            return jsonify(f'An area of {area} is not possible')
+
+        new_enclosure = Enclosure(name, area)
+        my_zoo.add_enclosure(new_enclosure)
+        return jsonify(new_enclosure)
 
 
 if __name__ == '__main__':
