@@ -168,6 +168,36 @@ class TestZooAnimal:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
 
+    def test_delete_animal(self, base_url, post_animal1):
+        """Test deleting an existing animal."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+
+        for animal_dict in animals:
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+
+    def test_delete_not_existing_animal(self, base_url, unknown_id, post_animal1):
+        """Test deleting an animal that does not exist."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+
+        message = json.loads(requests.delete(
+            base_url + f'/animal/{unknown_id}').content)
+        assert message == f'Animal with ID {unknown_id} has not been found'
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+
+        # Cleanup
+        for animal_dict in animals:
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+
     def test_feed_animal(self, base_url, post_animal1):
         """Test feeding an animal and see if it gets added to the 
         animals' feeding record."""
@@ -347,6 +377,36 @@ class TestZooEnclosure:
 
         for enclosure_dict in enclosures:
             requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_delete_enclosure(self, base_url, post_enclosure1):
+        """Test deleting an existing enclosure."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        for enclosure_dict in enclosures:
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_delete_not_existing_enclosure(self, base_url, unknown_id, post_enclosure1):
+        """Test deleting an enclosure that does not exist."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        message = json.loads(requests.delete(
+            base_url + f'/enclosure/{unknown_id}').content)
+        assert message == f'Enclosure with ID {unknown_id} has not been found'
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        # Cleanup
+        for enclosures_dict in enclosures:
+            requests.delete(base_url + f'/enclosure/{enclosures_dict["id"]}')
 
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
