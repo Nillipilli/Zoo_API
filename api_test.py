@@ -171,8 +171,49 @@ class TestZoo:
 
     def test_feed_animal_unknown_id(self, base_url, unknown_id):
         """Test trying to feed an animal that does not exist."""
-        r = requests.post(
-            base_url + f'/animal/{unknown_id}/feed')
+        r = requests.post(base_url + f'/animal/{unknown_id}/feed')
+        b = r.content
+        message = json.loads(b)
+        assert message == f'Animal with ID {unknown_id} has not been found'
+        
+    def test_vet_animal(self, base_url, post_animal1):
+        """Test performing a medical checkup on an animal and see if it
+        gets added to the animals' medical record."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+
+        for animal_dict in animals:
+            requests.post(base_url + f'/animal/{animal_dict["id"]}/vet')
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert len(new_animal_data['medical_record']) == 1
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+
+    def test_vet_animal_multiple_times(self, base_url, post_animal1):
+        """Test performing a medical checkup on an animal multiple times
+        and see if it gets added to the animals' medical record."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+
+        for animal_dict in animals:
+            requests.post(base_url + f'/animal/{animal_dict["id"]}/vet')
+            requests.post(base_url + f'/animal/{animal_dict["id"]}/vet')
+            requests.post(base_url + f'/animal/{animal_dict["id"]}/vet')
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert len(new_animal_data['medical_record']) == 3
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+
+    def test_vet_animal_unknown_id(self, base_url, unknown_id):
+        """Test trying to perform a medical checkup on an animal that 
+        does not exist."""
+        r = requests.post(base_url + f'/animal/{unknown_id}/vet')
         b = r.content
         message = json.loads(b)
         assert message == f'Animal with ID {unknown_id} has not been found'
