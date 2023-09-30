@@ -88,8 +88,20 @@ def test_get_animal_not_existing(zoo1: Zoo, animal1: Animal, animal2: Animal):
 
 
 def test_feed_animal(zoo1: Zoo, animal1: Animal):
-    """"""
+    """Test feed an animal once."""
     zoo1.add_animal(animal1)
     animal1.feed()
 
     assert (len(animal1.feeding_record) == 1)
+
+
+def test_feed_animal_often(zoo1: Zoo, animal1: Animal):
+    """Test feed an animal multiple_times."""
+    zoo1.add_animal(animal1)
+    animal1.feed()
+    animal1.feed()
+    animal1.feed()
+    animal1.feed()
+    animal1.feed()
+
+    assert (len(animal1.feeding_record) == 5)
