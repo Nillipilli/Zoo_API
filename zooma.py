@@ -127,5 +127,26 @@ class CreateEnclosure(Resource):
         return jsonify(new_enclosure)
 
 
+@api.route('/enclosure/<enclosure_id>')
+class EnclosureID(Resource):
+    def get(self, enclosure_id):
+        # returns None when no enclosure with the given ID exists
+        search_result = my_zoo.get_enclosure(enclosure_id)
+        return jsonify(search_result)
+
+    def delete(self, enclosure_id):
+        targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
+        if not targeted_enclosure:
+            return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
+        my_zoo.remove_enclosure(targeted_enclosure)
+        return jsonify(f'Enclosure with ID {enclosure_id} has been removed')
+
+
+@api.route('/enclosures')
+class AllEnclosures(Resource):
+    def get(self):
+        return jsonify(my_zoo.get_all_enclosures())
+
+
 if __name__ == '__main__':
     app.run(debug=False, port=7890)
