@@ -1,8 +1,9 @@
 import json
 import pytest
 import requests
-from zoo_objects import Animal
 from requests import Response
+
+from zoo_objects import Animal, Enclosure
 
 
 @pytest.fixture
@@ -29,6 +30,27 @@ def post_animal3(base_url: str, animal3: Animal) -> None:
     requests.post(base_url + '/animal', data=animal3_data)
 
 
+@pytest.fixture
+def post_enclosure1(base_url: str, enclosure1: Enclosure) -> None:
+    enclosure1_data = {'name': enclosure1.name,
+                       'area': enclosure1.area}
+    requests.post(base_url + '/enclosure', data=enclosure1_data)
+
+
+@pytest.fixture
+def post_enclosure2(base_url: str, enclosure2: Enclosure) -> None:
+    enclosure2_data = {'name': enclosure2.name,
+                       'area': enclosure2.area}
+    requests.post(base_url + '/enclosure', data=enclosure2_data)
+
+
+@pytest.fixture
+def post_enclosure3(base_url: str, enclosure3: Enclosure) -> None:
+    enclosure3_data = {'name': enclosure3.name,
+                       'area': enclosure3.area}
+    requests.post(base_url + '/enclosure', data=enclosure3_data)
+
+
 # @pytest.fixture
 # def zoo_with_one_animal(base_url) -> bytes:
 #     requests.post(base_url + '/animal',
@@ -51,7 +73,7 @@ def post_animal3(base_url: str, animal3: Animal) -> None:
 #     return response.content
 
 
-class TestZoo:
+class TestZooAnimal:
     def test_add_animal(self, base_url, post_animal1):
         """Test adding a single animal to the zoo."""
         x: Response = requests.get(base_url + '/animals')
@@ -98,7 +120,7 @@ class TestZoo:
         b = r.content
         message = json.loads(b)
         assert message == f'An age of {age} is not possible'
-        
+
     def test_get_all_animals_empty_zoo(self, base_url):
         """Test retrieving all animals of an empty zoo."""
         animals = json.loads(requests.get(base_url + '/animals').content)
@@ -228,3 +250,57 @@ class TestZoo:
         b = r.content
         message = json.loads(b)
         assert message == f'Animal with ID {unknown_id} has not been found'
+
+
+class TestZooEnclosure:
+    def test_add_enclosure(self, base_url, post_enclosure1):
+        """Test adding a single enclosure to the zoo."""
+        x: Response = requests.get(base_url + '/enclosures')
+        js: bytes = x.content
+        enclosures = json.loads(js)
+
+        assert len(enclosures) == 1
+        assert enclosures[0]['name'] == 'Cave1'
+        assert enclosures[0]['area'] == 125
+
+        requests.delete(base_url + f'/enclosure/{enclosures[0]["id"]}')
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_add_enclosures(self, base_url, post_enclosure1, post_enclosure2, post_enclosure3):
+        """Test adding multiple enclosures to the zoo."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+
+        assert len(enclosures) == 3
+        assert enclosures[0]['name'] == 'Cave1'
+        assert enclosures[0]['area'] == 125
+        assert enclosures[1]['name'] == 'Aquarium5'
+        assert enclosures[1]['area'] == 500.5
+        assert enclosures[2]['name'] == 'Enclosure753'
+        assert enclosures[2]['area'] == 4.123
+
+        for enclosure_dict in enclosures:
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_add_enclosure_with_negative_area(self, base_url):
+        """Test adding an enclosure with a negative area to the zoo."""
+        area = -0.0001
+        enclosure_data = {'name': 'Cave1',
+                          'area': area}
+        r = requests.post(base_url + '/enclosure', data=enclosure_data)
+        b = r.content
+        message = json.loads(b)
+        assert message == f'An area of {area} is not possible'
+
+    def test_add_enclosure_with_zero_area(self, base_url):
+        """Test adding an enclosure with an area of 0 to the zoo."""
+        area = 0
+        enclosure_data = {'name': 'Cave1',
+                          'area': area}
+        r = requests.post(base_url + '/enclosure', data=enclosure_data)
+        b = r.content
+        message = json.loads(b)
+        assert message == f'An area of {area:.1f} is not possible'
