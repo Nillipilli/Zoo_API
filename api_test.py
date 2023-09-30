@@ -126,10 +126,10 @@ class TestZooAnimal:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
 
-    def test_get_all_animals(self, base_url, post_animal1):
-        """Test retriving all animals of a zoo."""
+    def test_get_all_animals(self, base_url, post_animal1, post_animal2):
+        """Test retrieving all animals of a zoo."""
         animals = json.loads(requests.get(base_url + '/animals').content)
-        assert len(animals) == 1
+        assert len(animals) == 2
 
         for animal_dict in animals:
             requests.delete(base_url + f'/animal/{animal_dict["id"]}')
@@ -304,3 +304,49 @@ class TestZooEnclosure:
         b = r.content
         message = json.loads(b)
         assert message == f'An area of {area:.1f} is not possible'
+
+    def test_get_all_enclosures_empty_zoo(self, base_url):
+        """Test retrieving all enclosures of an empty zoo."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_get_all_enclosures(self, base_url, post_enclosure1, post_enclosure2):
+        """Test retrieving all enclosures of a zoo."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 2
+
+        for enclosure_dict in enclosures:
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+    def test_get_enclosure_info(self, base_url, post_enclosure1, post_enclosure2, post_enclosure3):
+        """Test retrieving information about specific enclosures."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 3
+
+        for enclosure_dict in enclosures:
+            enclosure_data = json.loads(requests.get(
+                base_url + f'/enclosure/{enclosure_dict["id"]}').content)
+            assert enclosure_data['name'] == enclosure_dict['name']
+            assert enclosure_data['area'] == enclosure_dict['area']
+
+        for enclosure_dict in enclosures:
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_get_enclosure_info_unknown_id(self, base_url, unknown_id, post_enclosure1):
+        """Test retrieving information about an enclosure that does not 
+        exist."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        enclosure_data = json.loads(requests.get(
+            base_url + f'/enclosure/{unknown_id}').content)
+        assert enclosure_data is None
+
+        for enclosure_dict in enclosures:
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
