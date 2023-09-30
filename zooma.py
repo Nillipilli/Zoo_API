@@ -88,19 +88,22 @@ class VetAnimal(Resource):
         return jsonify(targeted_animal)
 
 
-@api.route('/animal/<animal_id>/home')
-class SetHomeAnimal(Resource):
-    def post(self, animal_id):
-        args = set_home_parser.parse_args()
-        enclosure_id = args['enclosure_id']
-        targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
-        if not targeted_enclosure:
-            return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
-        targeted_animal = my_zoo.get_animal(animal_id)
-        if not targeted_animal:
-            return jsonify(f'Animal with ID {animal_id} has not been found')
-        targeted_animal.set_home(enclosure_id)
-        return jsonify(targeted_animal)
+# @api.route('/animal/<animal_id>/home')
+# class SetHomeAnimal(Resource):
+#     def post(self, animal_id):
+#         args = set_home_parser.parse_args()
+#         enclosure_id = args['enclosure_id']
+        
+#         targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
+#         if not targeted_enclosure:
+#             return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
+        
+#         targeted_animal = my_zoo.get_animal(animal_id)
+#         if not targeted_animal:
+#             return jsonify(f'Animal with ID {animal_id} has not been found')
+        
+#         targeted_animal.set_home(enclosure_id)
+#         return jsonify(targeted_animal)
 
 
 if __name__ == '__main__':
