@@ -148,5 +148,15 @@ class AllEnclosures(Resource):
         return jsonify(my_zoo.get_all_enclosures())
 
 
+@api.route('/enclosure/<enclosure_id>/clean')
+class CleanEnclosure(Resource):
+    def post(self, enclosure_id):
+        targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
+        if not targeted_enclosure:
+            return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
+        targeted_enclosure.clean()
+        return jsonify(targeted_enclosure)
+
+
 if __name__ == '__main__':
     app.run(debug=False, port=7890)

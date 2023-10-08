@@ -77,7 +77,7 @@ class Enclosure:
         self.name = name
         self.area = area
         self.animals: list[Animal] = []
-        self.cleaning_record: list[str] = []
+        self.cleaning_record: list[datetime.datetime] = []
 
     def add_animal(self, animal: Animal) -> None:
         """Add an animal, but only if it does not already exist."""
@@ -92,7 +92,8 @@ class Enclosure:
                 self.animals.remove(animal)
 
     def clean(self):
-        pass
+        """Add a new cleaning record."""
+        self.cleaning_record.append(datetime.datetime.now())
 
 
 if __name__ == '__main__':
