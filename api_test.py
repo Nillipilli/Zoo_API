@@ -410,3 +410,44 @@ class TestZooEnclosure:
 
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
+        
+    def test_clean_enclosure(self, base_url, post_enclosure1):
+        """Test cleaning an enclosure and see if it gets added to the 
+        enclosures' cleaning record."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        for enclosure_dict in enclosures:
+            requests.post(base_url + f'/enclosure/{enclosure_dict["id"]}/clean')
+            new_enclosure_data = json.loads(requests.get(
+                base_url + f'/enclosure/{enclosure_dict["id"]}').content)
+            assert len(new_enclosure_data['cleaning_record']) == 1
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_clean_enclosure_multiple_times(self, base_url, post_enclosure1):
+        """Test cleaning an enclosure multiple times and see if it gets 
+        added to the enclosures' cleaning record."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        for enclosure_dict in enclosures:
+            requests.post(base_url + f'/enclosure/{enclosure_dict["id"]}/clean')
+            requests.post(base_url + f'/enclosure/{enclosure_dict["id"]}/clean')
+            requests.post(base_url + f'/enclosure/{enclosure_dict["id"]}/clean')
+            new_enclosure_data = json.loads(requests.get(
+                base_url + f'/enclosure/{enclosure_dict["id"]}').content)
+            assert len(new_enclosure_data['cleaning_record']) == 3
+            requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_clean_enclosure_unknown_id(self, base_url, unknown_id):
+        """Test trying to clean an enclosure that does not exist."""
+        r = requests.post(base_url + f'/enclosure/{unknown_id}/clean')
+        b = r.content
+        message = json.loads(b)
+        assert message == f'Enclosure with ID {unknown_id} has not been found'
