@@ -3,6 +3,8 @@ from datetime import date
 from json import JSONEncoder
 from flask.json.provider import JSONProvider
 
+from zoo_objects import Animal, Caretaker, Enclosure
+
 
 # had to add this class using this post: https://shorturl.at/qEJZ6
 class CustomJSONProvider(JSONProvider):
@@ -17,9 +19,20 @@ class CustomJSONProvider(JSONProvider):
 class ZooJsonEncoder(JSONEncoder):
     def default(self, obj):
         try:
-            # handle date separately
+            # handle date separately (includes datetime)
             if isinstance(obj, date):
                 return obj.isoformat()
+            
+            # handle Animal, Caretaker and Enclosure separately;
+            # to handle circular references
+            elif isinstance(obj, Animal):
+                return obj.to_json()
+            
+            elif isinstance(obj, Caretaker):
+                return obj.to_json()
+            
+            elif isinstance(obj, Enclosure):
+                return obj.to_json()
 
             # check if object is iterable
             iterable = iter(obj)
