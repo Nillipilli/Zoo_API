@@ -87,6 +87,18 @@ def test_get_animal_not_existing(zoo1: Zoo, animal1: Animal, animal2: Animal):
 
     assert (len(zoo1.animals) == 1)
     assert zoo1.get_animal(animal2.id) is None
+    
+    
+def test_get_all_animals(zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal):
+    """Test getting all information about the existing animals."""
+    zoo1.add_animal(animal1)
+    zoo1.add_animal(animal2)
+    zoo1.add_animal(animal3)
+    
+    assert len(zoo1.get_all_animals()) == 3
+    assert animal1 in zoo1.get_all_animals()
+    assert animal2 in zoo1.get_all_animals()
+    assert animal3 in zoo1.get_all_animals()
 
 
 def test_feed_animal(zoo1: Zoo, animal1: Animal):
