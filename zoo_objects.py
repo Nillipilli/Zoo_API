@@ -50,6 +50,23 @@ class Animal:
         """Add a new medical record."""
         self.medical_record.append(datetime.datetime.now())
 
+    def to_json(self):
+        """To avoid circular references use this custom json encoding,
+        when displaying an Animal.
+
+        Instead of displaying the whole 'enclosure' and 'caretaker' 
+        objects just show the corresponding ID."""
+        return {
+            "id": self.id,
+            "species_name": self.species_name,
+            "common_name": self.common_name,
+            "age": self.age,
+            "enclosure": self.enclosure.id if self.enclosure else None,
+            "caretaker": self.caretaker.id if self.caretaker else None,
+            "feeding_record": self.feeding_record,
+            "medical_record": self.medical_record,
+        }
+
 
 class Caretaker:
     def __init__(self, name: str, address: str) -> None:
@@ -69,6 +86,19 @@ class Caretaker:
         if isinstance(animal, Animal):
             if animal in self.animals:
                 self.animals.remove(animal)
+
+    def to_json(self):
+        """To avoid circular references use this custom json encoding,
+        when displaying a Caretaker.
+
+        Instead of displaying all 'animal' objects just show the 
+        corresponding IDs."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "address": self.address,
+            "animals": [animal.id for animal in self.animals],
+        }
 
 
 class Enclosure:
@@ -91,12 +121,34 @@ class Enclosure:
             if animal in self.animals:
                 self.animals.remove(animal)
 
+    def get_animals(self) -> list[Animal]:
+        """Return a list of animals that live in this enclosure."""
+        return self.animals
+
     def clean(self):
         """Add a new cleaning record."""
         self.cleaning_record.append(datetime.datetime.now())
+
+    def to_json(self):
+        """To avoid circular references use this custom json encoding,
+        when displaying an Enclosure.
+
+        Instead of displaying all 'animal' objects just show the 
+        corresponding IDs."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "area": self.area,
+            "animals": [animal.id for animal in self.animals],
+            "cleaning_record": self.cleaning_record,
+        }
 
 
 if __name__ == '__main__':
     a = Animal('Tigris', 'Tiger', 1)
     a.feed()
     print(a.feeding_record)
+
+    e = Enclosure('cage', 100)
+    a.set_home(e)
+    print(a.enclosure)
