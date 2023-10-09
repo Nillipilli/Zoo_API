@@ -87,14 +87,14 @@ def test_get_animal_not_existing(zoo1: Zoo, animal1: Animal, animal2: Animal):
 
     assert (len(zoo1.animals) == 1)
     assert zoo1.get_animal(animal2.id) is None
-    
-    
+
+
 def test_get_all_animals(zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal):
     """Test getting all information about the existing animals."""
     zoo1.add_animal(animal1)
     zoo1.add_animal(animal2)
     zoo1.add_animal(animal3)
-    
+
     assert len(zoo1.get_all_animals()) == 3
     assert animal1 in zoo1.get_all_animals()
     assert animal2 in zoo1.get_all_animals()
@@ -145,40 +145,39 @@ def test_vet_animal_often(zoo1: Zoo, animal1: Animal):
     assert (len(animal1.medical_record) == 5)
     for record in animal1.medical_record:
         assert isinstance(record, datetime)
-        
-        
+
+
 def test_set_home(zoo1: Zoo, animal1: Animal, enclosure1: Enclosure):
     """Test assigning the first home to an existing animal."""
     zoo1.add_animal(animal1)
     zoo1.add_enclosure(enclosure1)
-    
+
     assert animal1.enclosure is None
     assert len(enclosure1.animals) == 0
     animal1.set_home(enclosure1)
     assert animal1.enclosure == enclosure1
     assert len(enclosure1.animals) == 1
     assert animal1 in enclosure1.animals
-    
-    
+
+
 def test_change_home(zoo1: Zoo, animal1: Animal, enclosure1: Enclosure, enclosure2: Enclosure):
     """Test changing the home of an existing animal."""
     zoo1.add_animal(animal1)
     zoo1.add_enclosure(enclosure1)
     zoo1.add_enclosure(enclosure2)
-    
+
     assert animal1.enclosure is None
     assert len(enclosure1.animals) == 0
     assert len(enclosure2.animals) == 0
-    
+
     animal1.set_home(enclosure1)
     assert animal1.enclosure == enclosure1
     assert len(enclosure1.animals) == 1
     assert len(enclosure2.animals) == 0
     assert animal1 in enclosure1.animals
-    
+
     animal1.set_home(enclosure2)
     assert animal1.enclosure == enclosure2
     assert len(enclosure1.animals) == 0
     assert len(enclosure2.animals) == 1
     assert animal1 in enclosure2.animals
-    
