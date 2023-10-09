@@ -37,6 +37,9 @@ def base_url() -> str:
 def unknown_id() -> str:
     return str(uuid.uuid4())
 
+@pytest.fixture(scope='session')
+def unknown_id2() -> str:
+    return str(uuid.uuid4())
 
 @pytest.fixture
 def enclosure1() -> Enclosure:
