@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 
 from zoo import Zoo
-from zoo_objects import Animal
+from zoo_objects import Animal, Enclosure
 
 
 def test_add_animals(zoo1: Zoo, animal1: Animal, animal2: Animal):
@@ -145,3 +145,40 @@ def test_vet_animal_often(zoo1: Zoo, animal1: Animal):
     assert (len(animal1.medical_record) == 5)
     for record in animal1.medical_record:
         assert isinstance(record, datetime)
+        
+        
+def test_set_home(zoo1: Zoo, animal1: Animal, enclosure1: Enclosure):
+    """Test assigning the first home to an existing animal."""
+    zoo1.add_animal(animal1)
+    zoo1.add_enclosure(enclosure1)
+    
+    assert animal1.enclosure is None
+    assert len(enclosure1.animals) == 0
+    animal1.set_home(enclosure1)
+    assert animal1.enclosure == enclosure1
+    assert len(enclosure1.animals) == 1
+    assert animal1 in enclosure1.animals
+    
+    
+def test_change_home(zoo1: Zoo, animal1: Animal, enclosure1: Enclosure, enclosure2: Enclosure):
+    """Test changing the home of an existing animal."""
+    zoo1.add_animal(animal1)
+    zoo1.add_enclosure(enclosure1)
+    zoo1.add_enclosure(enclosure2)
+    
+    assert animal1.enclosure is None
+    assert len(enclosure1.animals) == 0
+    assert len(enclosure2.animals) == 0
+    
+    animal1.set_home(enclosure1)
+    assert animal1.enclosure == enclosure1
+    assert len(enclosure1.animals) == 1
+    assert len(enclosure2.animals) == 0
+    assert animal1 in enclosure1.animals
+    
+    animal1.set_home(enclosure2)
+    assert animal1.enclosure == enclosure2
+    assert len(enclosure1.animals) == 0
+    assert len(enclosure2.animals) == 1
+    assert animal1 in enclosure2.animals
+    
