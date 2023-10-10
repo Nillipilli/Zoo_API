@@ -593,7 +593,7 @@ class TestZooEnclosure:
 
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
-        
+
     def test_get_animals_single_animal(self, base_url, post_enclosure1, post_animal1):
         """Test getting all animals of an enclosure with a single 
         animal."""
@@ -601,14 +601,15 @@ class TestZooEnclosure:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(enclosures) == 1
         assert len(animals) == 1
-        
+
         data = {'animal_id': post_animal1["id"],
                 'enclosure_id': post_enclosure1["id"]}
         requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data)
 
         enclosure_animals = json.loads(requests.get(
             base_url + f'/enclosure/{post_enclosure1["id"]}/animals').content)
-        new_animal_data = json.loads(requests.get(base_url + f'/animal/{post_animal1["id"]}').content)
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
         assert len(enclosure_animals) == 1
         assert new_animal_data in enclosure_animals
 
@@ -619,3 +620,44 @@ class TestZooEnclosure:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(enclosures) == 0
         assert len(animals) == 0
+
+    def test_get_animals_multiple_animals(self, base_url, post_enclosure1, post_animal1, post_animal2, post_animal3):
+        """Test getting all animals of an enclosure with multiple 
+        animals."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 1
+        assert len(animals) == 3
+
+        count = 1
+        for animal_dict in animals:
+            data = {'animal_id': animal_dict["id"],
+                    'enclosure_id': post_enclosure1["id"]}
+            requests.post(base_url + f'/animal/{animal_dict["id"]}/home', data)
+            enclosure_animals = json.loads(requests.get(
+                base_url + f'/enclosure/{post_enclosure1["id"]}/animals').content)
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert len(enclosure_animals) == count
+            assert enclosure_animals[-1] == new_animal_data
+            count += 1
+
+        for animal_dict in animals:
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 0
+        assert len(animals) == 0
+
+    def test_get_animals_unknown_enclosure_id(self, base_url, unknown_id):
+        """Test getting all animals of a not existing enclosure."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 0
+        assert len(animals) == 0
+
+        message = json.loads(requests.get(
+            base_url + f'/enclosure/{unknown_id}/animals').content)
+        assert message == f'Enclosure with ID {unknown_id} has not been found'
