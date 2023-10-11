@@ -136,11 +136,13 @@ class EnclosureID(Resource):
         return jsonify(search_result)
 
     def delete(self, enclosure_id):
-        # TODO move all animals to another enclosure first
         targeted_enclosure = my_zoo.get_enclosure(enclosure_id)
         if not targeted_enclosure:
             return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
-        my_zoo.remove_enclosure(targeted_enclosure)
+        if not my_zoo.remove_enclosure(targeted_enclosure):
+            return jsonify((f'Enclosure with ID {enclosure_id} has not been '
+                            'removed because the animals cannot be '
+                            'transferred to another enclosure'))
         return jsonify(f'Enclosure with ID {enclosure_id} has been removed')
 
 

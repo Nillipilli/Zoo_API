@@ -15,7 +15,10 @@ class Zoo:
                 self.animals.append(animal)
 
     def remove_animal(self, animal: Animal) -> None:
-        """Remove an animal from the zoo, but only if it exists."""
+        """Remove an animal from the zoo, but only if it exists.
+        
+        Take care of unsetting its home and removing it from the 
+        corresponding enclosure."""
         if isinstance(animal, Animal):
             if animal in self.animals:
                 animal.unset_home()
@@ -66,11 +69,22 @@ class Zoo:
             if enclosure not in self.enclosures:
                 self.enclosures.append(enclosure)
 
-    def remove_enclosure(self, enclosure: Enclosure) -> None:
-        """Remove an enclosure from the zoo, but only if it exists."""
+    def remove_enclosure(self, enclosure: Enclosure) -> bool:
+        """Remove an enclosure from the zoo, but only if it exists.
+        
+        Also make sure to move all animals that live in the given 
+        enclosure to another enclosure before deleting it. If no other 
+        enclosure exists that can provide housing to the animals it is 
+        not possible to delete the enclosure."""
         if isinstance(enclosure, Enclosure):
             if enclosure in self.enclosures:
+                if len(enclosure.get_animals()) > 0 and len(self.enclosures) == 1:
+                    return False
+                new_enclosure = [enclosure_ for enclosure_ in self.enclosures if enclosure_ != enclosure][0]
+                for animal in enclosure.animals:
+                    animal.set_home(new_enclosure)
                 self.enclosures.remove(enclosure)
+        return True
 
     def get_enclosure(self, enclosure_id: str) -> Enclosure | None:
         """Return an enclosure, but only if an enclosure with the given 
