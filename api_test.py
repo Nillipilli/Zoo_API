@@ -224,7 +224,7 @@ class TestZooAnimal:
         new_enclosure_data = json.loads(requests.get(
             base_url + f'/enclosure/{post_enclosure1["id"]}').content)
         assert len(new_enclosure_data['animals']) == 0
-        
+
         requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
         animals = json.loads(requests.get(base_url + '/animals').content)
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
@@ -646,8 +646,8 @@ class TestZooEnclosure:
         assert len(enclosure_animals) == 1
         assert new_animal_data in enclosure_animals
 
-        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
         requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
 
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         animals = json.loads(requests.get(base_url + '/animals').content)
