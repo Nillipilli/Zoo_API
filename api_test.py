@@ -538,8 +538,8 @@ class TestZooEnclosure:
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
 
-    def test_delete_enclosure(self, base_url, post_enclosure1):
-        """Test deleting an existing enclosure."""
+    def test_delete_empty_enclosure(self, base_url, post_enclosure1):
+        """Test deleting an existing empty enclosure."""
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 1
 
@@ -549,7 +549,7 @@ class TestZooEnclosure:
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
 
-    def test_delete_not_existing_enclosure(self, base_url, unknown_id, post_enclosure1):
+    def test_delete_not_existing_empty_enclosure(self, base_url, unknown_id, post_enclosure1):
         """Test deleting an enclosure that does not exist."""
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 1
@@ -567,6 +567,92 @@ class TestZooEnclosure:
 
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
+
+    def test_delete_enclosure_with_animal_transfer(self, base_url, post_enclosure1, post_enclosure2, post_enclosure3, post_animal1):
+        """Test deleting an existing enclosure that is the home of 
+        some animals, while other enclosures exist."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 3
+        assert len(animals) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'enclosure_id': post_enclosure1["id"]}
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_enclosure1_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        assert new_animal_data['enclosure'] == post_enclosure1["id"]
+        assert post_animal1["id"] in new_enclosure1_data['animals']
+
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_enclosure2_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure2["id"]}').content)
+        assert new_animal_data['enclosure'] == post_enclosure2["id"]
+        assert post_animal1["id"] in new_enclosure2_data['animals']
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 2
+
+        requests.delete(base_url + f'/enclosure/{post_enclosure2["id"]}')
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_enclosure3_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure3["id"]}').content)
+        assert new_animal_data['enclosure'] == post_enclosure3["id"]
+        assert post_animal1["id"] in new_enclosure3_data['animals']
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/enclosure/{post_enclosure3["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 0
+        assert len(animals) == 0
+
+    def test_delete_enclosure_cannot_transfer(self, base_url, post_enclosure1, post_animal1):
+        """Test deleting an existing enclosure that is the home of 
+        some animals, while no other enclosure exists"""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 1
+        assert len(animals) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'enclosure_id': post_enclosure1["id"]}
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_enclosure1_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        assert new_animal_data['enclosure'] == post_enclosure1["id"]
+        assert post_animal1["id"] in new_enclosure1_data['animals']
+
+        message = json.loads(requests.delete(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        assert message == (f'Enclosure with ID {post_enclosure1["id"]} has '
+                           'not been removed because the animals cannot be '
+                           'transferred to another enclosure')
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(enclosures) == 0
+        assert len(animals) == 0
 
     def test_clean_enclosure(self, base_url, post_enclosure1):
         """Test cleaning an enclosure and see if it gets added to the 
