@@ -29,6 +29,13 @@ class Animal:
                 self.enclosure.remove_animal(self)
             self.enclosure = enclosure
             enclosure.add_animal(self)
+            
+    def unset_home(self):
+        """Remove the animal from the enclosure it used to live in and 
+        set its enclosure to its default value."""
+        if self.enclosure is not None:
+            self.enclosure.remove_animal(self)
+            self.enclosure = None
 
     def set_caretaker(self, caretaker: caretaker_):
         """Assign the given caretaker to this animal and add this animal

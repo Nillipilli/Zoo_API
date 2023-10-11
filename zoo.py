@@ -18,6 +18,7 @@ class Zoo:
         """Remove an animal from the zoo, but only if it exists."""
         if isinstance(animal, Animal):
             if animal in self.animals:
+                animal.unset_home()
                 self.animals.remove(animal)
 
     def get_animal(self, animal_id: str) -> Animal | None:
