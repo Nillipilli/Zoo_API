@@ -3,6 +3,7 @@ import datetime
 from typing import TypeAlias
 
 # use this when normal type aliases for classes do not work correctly
+animal_: TypeAlias = 'Animal'
 enclosure_: TypeAlias = 'Enclosure'
 caretaker_: TypeAlias = 'Caretaker'
 
@@ -29,7 +30,7 @@ class Animal:
                 self.enclosure.remove_animal(self)
             self.enclosure = enclosure
             enclosure.add_animal(self)
-            
+
     def unset_home(self):
         """Remove the animal from the enclosure it used to live in and 
         set its enclosure to its default value."""
@@ -56,6 +57,15 @@ class Animal:
     def vet(self):
         """Add a new medical record."""
         self.medical_record.append(datetime.datetime.now())
+
+    def birth(self) -> animal_:
+        """Give birth to a new animal.
+
+        The newborn shares the same species name, common name and 
+        enclosure to live in."""
+        new_animal = Animal(self.species_name, self.common_name, 0)
+        new_animal.enclosure = self.enclosure
+        return new_animal
 
     def to_json(self):
         """To avoid circular references use this custom json encoding,

@@ -185,7 +185,7 @@ def test_change_home(zoo1: Zoo, animal1: Animal, enclosure1: Enclosure, enclosur
 
 def test_unset_home(animal1: Animal, enclosure1: Enclosure):
     """Test unsetting the home of an animal. 
-    
+
     It should set the value to its default value and remove the animal 
     also from the enclosure's list of animals."""
     assert animal1.enclosure is None
@@ -199,10 +199,27 @@ def test_unset_home(animal1: Animal, enclosure1: Enclosure):
     animal1.unset_home()
     assert animal1.enclosure is None
     assert len(enclosure1.animals) == 0
-    
-    
+
+
 def test_unset_home_no_home(animal1: Animal):
     """Test unsetting the home of an animal that has no home so far."""
     assert animal1.enclosure is None
     animal1.unset_home()
     assert animal1.enclosure is None
+
+
+def test_birth_without_enclosure_set(animal1: Animal):
+    """Test giving birth to a new animal when the mother is not living
+    in any enclosure."""
+    new_animal = animal1.birth()
+    assert isinstance(new_animal, Animal)
+    assert new_animal.enclosure == animal1.enclosure
+
+
+def test_birth_with_enclosure_set(animal1: Animal, enclosure1: Enclosure):
+    """Test giving birth to a new animal when the mother is already 
+    living in an enclosure."""
+    animal1.set_home(enclosure1)
+    new_animal = animal1.birth()
+    assert isinstance(new_animal, Animal)
+    assert new_animal.enclosure == animal1.enclosure
