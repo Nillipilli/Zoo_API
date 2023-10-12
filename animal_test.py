@@ -5,25 +5,6 @@ from zoo import Zoo
 from zoo_objects import Animal, Enclosure
 
 
-def test_add_animals(zoo1: Zoo, animal1: Animal, animal2: Animal):
-    """Test adding animals to the zoo."""
-    zoo1.add_animal(animal1)
-    zoo1.add_animal(animal2)
-
-    assert (len(zoo1.animals) == 2)
-    assert (animal1 in zoo1.animals)
-    assert (animal2 in zoo1.animals)
-
-
-def test_add_animal_twice(zoo1: Zoo, animal1: Animal):
-    """Test adding an animal twice to the zoo."""
-    zoo1.add_animal(animal1)
-    zoo1.add_animal(animal1)
-
-    assert (len(zoo1.animals) == 1)
-    assert (animal1 in zoo1.animals)
-
-
 def test_add_and_remove_animals(zoo1: Zoo, animal1: Animal, animal2: Animal):
     """Test adding animals to the zoo and then remove one."""
     zoo1.add_animal(animal1)

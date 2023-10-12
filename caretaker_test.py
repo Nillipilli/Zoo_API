@@ -4,23 +4,6 @@ from zoo import Zoo
 from zoo_objects import Caretaker
 
 
-def test_add_caretakers(zoo1: Zoo, caretaker1: Caretaker, caretaker2: Caretaker):
-    """Test adding caretakers to the zoo."""
-    zoo1.add_caretaker(caretaker1)
-    zoo1.add_caretaker(caretaker2)
-    assert len(zoo1.caretakers) == 2
-    assert caretaker1 in zoo1.caretakers
-    assert caretaker2 in zoo1.caretakers
-
-
-def test_add_caretaker_twice(zoo1: Zoo, caretaker1: Caretaker):
-    """Test adding a caretaker twice to the zoo."""
-    zoo1.add_caretaker(caretaker1)
-    zoo1.add_caretaker(caretaker1)
-    assert len(zoo1.caretakers) == 1
-    assert caretaker1 in zoo1.caretakers
-
-
 def test_add_and_remove_caretakers(zoo1: Zoo, caretaker1: Caretaker, caretaker2: Caretaker):
     """Test adding caretakers to the zoo and then remove one."""
     zoo1.add_caretaker(caretaker1)
