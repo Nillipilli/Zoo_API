@@ -6,51 +6,6 @@ from requests import Response
 from zoo_objects import Animal, Enclosure
 
 
-@pytest.fixture
-def post_animal1(base_url: str, animal1: Animal) -> dict:
-    animal1_data = {'species_name': animal1.species_name,
-                    'common_name': animal1.common_name,
-                    'age': animal1.age}
-    return json.loads(requests.post(base_url + '/animal', data=animal1_data).content)
-
-
-@pytest.fixture
-def post_animal2(base_url: str, animal2: Animal) -> dict:
-    animal2_data = {'species_name': animal2.species_name,
-                    'common_name': animal2.common_name,
-                    'age': animal2.age}
-    return json.loads(requests.post(base_url + '/animal', data=animal2_data).content)
-
-
-@pytest.fixture
-def post_animal3(base_url: str, animal3: Animal) -> dict:
-    animal3_data = {'species_name': animal3.species_name,
-                    'common_name': animal3.common_name,
-                    'age': animal3.age}
-    return json.loads(requests.post(base_url + '/animal', data=animal3_data).content)
-
-
-@pytest.fixture
-def post_enclosure1(base_url: str, enclosure1: Enclosure) -> dict:
-    enclosure1_data = {'name': enclosure1.name,
-                       'area': enclosure1.area}
-    return json.loads(requests.post(base_url + '/enclosure', data=enclosure1_data).content)
-
-
-@pytest.fixture
-def post_enclosure2(base_url: str, enclosure2: Enclosure) -> dict:
-    enclosure2_data = {'name': enclosure2.name,
-                       'area': enclosure2.area}
-    return json.loads(requests.post(base_url + '/enclosure', data=enclosure2_data).content)
-
-
-@pytest.fixture
-def post_enclosure3(base_url: str, enclosure3: Enclosure) -> dict:
-    enclosure3_data = {'name': enclosure3.name,
-                       'area': enclosure3.area}
-    return json.loads(requests.post(base_url + '/enclosure', data=enclosure3_data).content)
-
-
 # @pytest.fixture
 # def zoo_with_one_animal(base_url) -> bytes:
 #     requests.post(base_url + '/animal',
@@ -437,29 +392,30 @@ class TestZooAnimal:
         b = r.content
         message = json.loads(b)
         assert message == f'Animal with ID {unknown_id} has not been found'
-        
+
     def test_give_birth_no_home(self, base_url, post_animal1):
         """Test giving birth to a new animal when the mother is not 
         living in any enclosure so far."""
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 1
         assert post_animal1["enclosure"] is None
-        
+
         data = {'animal_id': post_animal1['id']}
-        child = json.loads(requests.post(base_url + f'/animal/birth', data).content)
-        
+        child = json.loads(requests.post(
+            base_url + f'/animal/birth', data).content)
+
         animals = json.loads(requests.get(base_url + f'/animals').content)
         assert len(animals) == 2
         assert post_animal1['enclosure'] is None
         assert child['enclosure'] is None
-        
+
         # cleanup
         for animal_dict in animals:
             requests.delete(base_url + f'/animal/{animal_dict["id"]}')
-            
+
         animals = json.loads(requests.get(base_url + f'/animals').content)
         assert len(animals) == 0
-        
+
     def test_give_birth_with_home(self, base_url, post_animal1, post_enclosure1):
         """Test giving birth to a new animal when the mother is already 
         living in an enclosure."""
@@ -467,38 +423,41 @@ class TestZooAnimal:
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(animals) == 1
         assert len(enclosures) == 1
-        
+
         data = {'animal_id': post_animal1["id"],
                 'enclosure_id': post_enclosure1["id"]}
         requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data)
         new_animal_data = json.loads(requests.get(
-                base_url + f'/animal/{post_animal1["id"]}').content)
+            base_url + f'/animal/{post_animal1["id"]}').content)
         assert new_animal_data['enclosure'] == post_enclosure1['id']
-        
+
         data = {'animal_id': post_animal1['id']}
-        child = json.loads(requests.post(base_url + f'/animal/birth', data).content)
-        
+        child = json.loads(requests.post(
+            base_url + f'/animal/birth', data).content)
+
         animals = json.loads(requests.get(base_url + f'/animals').content)
         assert len(animals) == 2
         assert new_animal_data['enclosure'] == post_enclosure1['id']
         assert child['enclosure'] == post_enclosure1['id']
-        
+
         # cleanup
         for animal_dict in animals:
             requests.delete(base_url + f'/animal/{animal_dict["id"]}')
         requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
-        
+
         animals = json.loads(requests.get(base_url + f'/animals').content)
-        enclosures = json.loads(requests.get(base_url + f'/enclosures').content)
+        enclosures = json.loads(requests.get(
+            base_url + f'/enclosures').content)
         assert len(animals) == 0
         assert len(enclosures) == 0
-        
+
     def test_give_birth_unknown_id(self, base_url, unknown_id):
         """Test giving birth with an unknown animal ID."""
         data = {'animal_id': unknown_id}
-        message = json.loads(requests.post(base_url + f'/animal/birth', data).content)
+        message = json.loads(requests.post(
+            base_url + f'/animal/birth', data).content)
         assert message == f'Animal with ID {unknown_id} has not been found'
-        
+
 
 class TestZooEnclosure:
     def test_add_enclosure(self, base_url, post_enclosure1):

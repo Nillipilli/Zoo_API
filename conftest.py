@@ -1,16 +1,15 @@
-# All fixtures in this file can be used by every test file without
-# importing anything.
-
 import uuid
+import json
 import pytest
+import requests
 
 from zoo import Zoo
 from zoo_objects import Animal, Caretaker, Enclosure
 
+# NOTE All fixtures in this file can be used by every test file without
+# importing anything.
 
-@pytest.fixture(scope='session')
-def base_url() -> str:
-    return 'http://127.0.0.1:7890'
+# ---- zoo fixtures ----
 
 
 @pytest.fixture
@@ -63,6 +62,14 @@ def caretaker3() -> Caretaker:
     return Caretaker('Pitt', 'gameon town 123')
 
 
+# ---- API fixtures
+
+
+@pytest.fixture(scope='session')
+def base_url() -> str:
+    return 'http://127.0.0.1:7890'
+
+
 @pytest.fixture(scope='session')
 def unknown_id() -> str:
     return str(uuid.uuid4())
@@ -71,3 +78,48 @@ def unknown_id() -> str:
 @pytest.fixture(scope='session')
 def unknown_id2() -> str:
     return str(uuid.uuid4())
+
+
+@pytest.fixture
+def post_animal1(base_url: str, animal1: Animal) -> dict:
+    animal1_data = {'species_name': animal1.species_name,
+                    'common_name': animal1.common_name,
+                    'age': animal1.age}
+    return json.loads(requests.post(base_url + '/animal', data=animal1_data).content)
+
+
+@pytest.fixture
+def post_animal2(base_url: str, animal2: Animal) -> dict:
+    animal2_data = {'species_name': animal2.species_name,
+                    'common_name': animal2.common_name,
+                    'age': animal2.age}
+    return json.loads(requests.post(base_url + '/animal', data=animal2_data).content)
+
+
+@pytest.fixture
+def post_animal3(base_url: str, animal3: Animal) -> dict:
+    animal3_data = {'species_name': animal3.species_name,
+                    'common_name': animal3.common_name,
+                    'age': animal3.age}
+    return json.loads(requests.post(base_url + '/animal', data=animal3_data).content)
+
+
+@pytest.fixture
+def post_enclosure1(base_url: str, enclosure1: Enclosure) -> dict:
+    enclosure1_data = {'name': enclosure1.name,
+                       'area': enclosure1.area}
+    return json.loads(requests.post(base_url + '/enclosure', data=enclosure1_data).content)
+
+
+@pytest.fixture
+def post_enclosure2(base_url: str, enclosure2: Enclosure) -> dict:
+    enclosure2_data = {'name': enclosure2.name,
+                       'area': enclosure2.area}
+    return json.loads(requests.post(base_url + '/enclosure', data=enclosure2_data).content)
+
+
+@pytest.fixture
+def post_enclosure3(base_url: str, enclosure3: Enclosure) -> dict:
+    enclosure3_data = {'name': enclosure3.name,
+                       'area': enclosure3.area}
+    return json.loads(requests.post(base_url + '/enclosure', data=enclosure3_data).content)
