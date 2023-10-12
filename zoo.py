@@ -43,12 +43,27 @@ class Zoo:
             if caretaker not in self.caretakers:
                 self.caretakers.append(caretaker)
 
-    def remove_caretaker(self, caretaker: Caretaker) -> None:
+    def remove_caretaker(self, caretaker: Caretaker) -> bool:
         """Remove a caretaker from the zoo, but only if she/he
         exists."""
         if isinstance(caretaker, Caretaker):
             if caretaker in self.caretakers:
-                self.caretakers.remove(caretaker)
+                if len(self.caretakers) == 1 and caretaker.get_animals():
+                    return False
+                else:
+                    # use a generator expression to find the next
+                    # possible caretaker and then move on. If no other
+                    # caretaker exists set it to None.
+                    new_caretaker = next(
+                        (c for c in self.caretakers if c != caretaker), None)
+
+                    if new_caretaker:
+                        for animal in caretaker.get_animals():
+                            pass
+                            # TODO implement care_for method
+                            # caretaker.care_for
+                    self.caretakers.remove(caretaker)
+        return True
 
     def get_caretaker(self, caretaker_id: str) -> Caretaker | None:
         """Return a caretaker, but only if a caretaker with the given 

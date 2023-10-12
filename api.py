@@ -140,8 +140,8 @@ class GiveBirthAnimal(Resource):
         child = targeted_animal.birth()
         my_zoo.add_animal(child)
         return jsonify(child)
-    
-    
+
+
 # ---- Enclosure API calls ----
 
 
@@ -203,8 +203,8 @@ class AllAnimalsInEnclosure(Resource):
             return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
         animals = targeted_enclosure.get_animals()
         return jsonify(animals)
-    
-    
+
+
 # ---- Caretaker API calls ----
 
 
@@ -219,6 +219,32 @@ class CreateCaretaker(Resource):
         new_caretaker = Caretaker(name, address)
         my_zoo.add_caretaker(new_caretaker)
         return jsonify(new_caretaker)
+
+
+@api.route('/caretaker/<caretaker_id>')
+class CaretakerID(Resource):
+    def get(self, caretaker_id):
+        # returns None when no caretaker with the given ID exists
+        search_result = my_zoo.get_caretaker(caretaker_id)
+        return jsonify(search_result)
+
+    def delete(self, caretaker_id):
+        targeted_caretaker = my_zoo.get_caretaker(caretaker_id)
+        if not targeted_caretaker:
+            return jsonify(f'Caretaker with ID {caretaker_id} has not been found')
+        
+        if not my_zoo.remove_caretaker(targeted_caretaker):
+            return jsonify((f'Caretaker with ID {caretaker_id} has not been '
+                            'removed because the animals cannot be '
+                            'transferred to another caretaker'))
+            
+        return jsonify(f'Caretaker with ID {caretaker_id} has been removed')
+
+
+@api.route('/caretakers')
+class AllCaretakers(Resource):
+    def get(self):
+        return jsonify(my_zoo.get_all_caretakers())
 
 
 if __name__ == '__main__':

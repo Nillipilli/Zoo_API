@@ -103,6 +103,10 @@ class Caretaker:
         if isinstance(animal, Animal):
             if animal in self.animals:
                 self.animals.remove(animal)
+                
+    def get_animals(self) -> list[Animal]:
+        """Return a list of animals that this caretaker cares for."""
+        return self.animals
 
     def to_json(self):
         """To avoid circular references use this custom json encoding,
