@@ -29,7 +29,11 @@ create_enclosure_parser.add_argument('area', type=float, required=True,
 
 set_home_parser = reqparse.RequestParser()
 set_home_parser.add_argument('enclosure_id', type=str, required=True,
-                             help='The ID of the enclosure where the animal will live. For example \'bc889d3a-f378-416c-9c88-2dae19fc0f3c\'')
+                             help='The ID of the enclosure where the animal will live. For example \'en889d3a-f378-416c-9c88-2dae19fc0f3c\'')
+
+give_birth_parser = reqparse.RequestParser()
+give_birth_parser.add_argument('animal_id', type=str, required=True,
+                               help='The ID of the mother animal. For example \'an889d3a-f378-416c-9c88-2dae19fc0f3c\'')
 
 
 @api.route('/animal')
@@ -111,6 +115,22 @@ class SetHomeAnimal(Resource):
 
         targeted_animal.set_home(targeted_enclosure)
         return jsonify(targeted_animal)
+    
+    
+@api.route('/animal/birth')
+class GiveBirthAnimal(Resource):
+    @api.doc(parser=give_birth_parser)
+    def post(self):
+        args = give_birth_parser.parse_args()
+        animal_id = args['animal_id']
+
+        targeted_animal = my_zoo.get_animal(animal_id)
+        if not targeted_animal:
+            return jsonify(f'Animal with ID {animal_id} has not been found')
+
+        child = targeted_animal.birth()
+        my_zoo.add_animal(child)
+        return jsonify(child)
 
 
 @api.route('/enclosure')
