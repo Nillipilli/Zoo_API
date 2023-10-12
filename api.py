@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_restx import Api, reqparse, Resource
 
 from zoo import Zoo
-from zoo_json_utils import CustomJSONProvider
+from api_json_utils import CustomJSONProvider
 from zoo_objects import Animal, Caretaker, Enclosure
 
 my_zoo = Zoo()
