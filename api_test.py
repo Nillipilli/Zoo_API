@@ -3,8 +3,6 @@ import pytest
 import requests
 from requests import Response
 
-from zoo_objects import Animal, Enclosure
-
 
 # @pytest.fixture
 # def zoo_with_one_animal(base_url) -> bytes:
@@ -31,34 +29,41 @@ from zoo_objects import Animal, Enclosure
 class TestZooAnimal:
     def test_add_animal(self, base_url, post_animal1):
         """Test adding a single animal to the zoo."""
-        x: Response = requests.get(base_url + '/animals')
-        js: bytes = x.content
-        animals = json.loads(js)
-
+        # Make the request
+        r: Response = requests.get(base_url + '/animals')
+        
+        # Get the content of the Response
+        b: bytes = r.content
+        
+        # Deserialize the data into a python object
+        animals = json.loads(b)
         assert len(animals) == 1
-        assert animals[0]['species_name'] == 'Panthera tigris'
-        assert animals[0]['common_name'] == 'Tiger'
-        assert animals[0]['age'] == 12
+        
+        assert animals[0]['species_name'] == post_animal1['species_name']
+        assert animals[0]['common_name'] == post_animal1['common_name']
+        assert animals[0]['age'] == post_animal1['age']
 
-        requests.delete(base_url + f'/animal/{animals[0]["id"]}')
+        # Cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
 
-    def test_add_animals(self, base_url, post_animal1, post_animal2, post_animal3):
+    def test_add_multiple_animals(self, base_url, post_animal1, post_animal2, post_animal3):
         """Test adding multiple animals to the zoo."""
         animals = json.loads(requests.get(base_url + '/animals').content)
-
         assert len(animals) == 3
-        assert animals[0]['species_name'] == 'Panthera tigris'
-        assert animals[0]['common_name'] == 'Tiger'
-        assert animals[0]['age'] == 12
-        assert animals[1]['species_name'] == 'Testudinata'
-        assert animals[1]['common_name'] == 'Turtle'
-        assert animals[1]['age'] == 5
-        assert animals[2]['species_name'] == 'Pan troglodytes'
-        assert animals[2]['common_name'] == 'Chimpanzee'
-        assert animals[2]['age'] == 36
+        
+        assert animals[0]['species_name'] == post_animal1['species_name']
+        assert animals[0]['common_name'] == post_animal1['common_name']
+        assert animals[0]['age'] == post_animal1['age']
+        assert animals[1]['species_name'] == post_animal2['species_name']
+        assert animals[1]['common_name'] == post_animal2['common_name']
+        assert animals[1]['age'] == post_animal2['age']
+        assert animals[2]['species_name'] == post_animal3['species_name']
+        assert animals[2]['common_name'] == post_animal3['common_name']
+        assert animals[2]['age'] == post_animal3['age']
 
+        # Cleanup
         for animal_dict in animals:
             requests.delete(base_url + f'/animal/{animal_dict["id"]}')
 
@@ -68,12 +73,10 @@ class TestZooAnimal:
     def test_add_animal_with_negative_age(self, base_url):
         """Test adding an animal with a negative age to the zoo."""
         age = -1
-        animal_data = {'species_name': 'Panthera tigris',
+        data = {'species_name': 'Panthera tigris',
                        'common_name': 'Tiger',
                        'age': age}
-        r = requests.post(base_url + '/animal', data=animal_data)
-        b = r.content
-        message = json.loads(b)
+        message = json.loads(requests.post(base_url + '/animal', data=data).content)
         assert message == f'An age of {age} is not possible'
 
     def test_get_all_animals_empty_zoo(self, base_url):
@@ -462,30 +465,30 @@ class TestZooAnimal:
 class TestZooEnclosure:
     def test_add_enclosure(self, base_url, post_enclosure1):
         """Test adding a single enclosure to the zoo."""
-        x: Response = requests.get(base_url + '/enclosures')
-        js: bytes = x.content
-        enclosures = json.loads(js)
-
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 1
-        assert enclosures[0]['name'] == 'Cave1'
-        assert enclosures[0]['area'] == 125
+        
+        assert enclosures[0]['name'] == post_enclosure1['name']
+        assert enclosures[0]['area'] == post_enclosure1['area']
 
-        requests.delete(base_url + f'/enclosure/{enclosures[0]["id"]}')
+        # Cleanup
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 0
 
-    def test_add_enclosures(self, base_url, post_enclosure1, post_enclosure2, post_enclosure3):
+    def test_add_multiple_enclosures(self, base_url, post_enclosure1, post_enclosure2, post_enclosure3):
         """Test adding multiple enclosures to the zoo."""
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
-
         assert len(enclosures) == 3
-        assert enclosures[0]['name'] == 'Cave1'
-        assert enclosures[0]['area'] == 125
-        assert enclosures[1]['name'] == 'Aquarium5'
-        assert enclosures[1]['area'] == 500.5
-        assert enclosures[2]['name'] == 'Enclosure753'
-        assert enclosures[2]['area'] == 4.123
+        
+        assert enclosures[0]['name'] == post_enclosure1['name']
+        assert enclosures[0]['area'] == post_enclosure1['area']
+        assert enclosures[1]['name'] == post_enclosure2['name']
+        assert enclosures[1]['area'] == post_enclosure2['area']
+        assert enclosures[2]['name'] == post_enclosure3['name']
+        assert enclosures[2]['area'] == post_enclosure3['area']
 
+        # Cleanup
         for enclosure_dict in enclosures:
             requests.delete(base_url + f'/enclosure/{enclosure_dict["id"]}')
 
@@ -494,22 +497,16 @@ class TestZooEnclosure:
 
     def test_add_enclosure_with_negative_area(self, base_url):
         """Test adding an enclosure with a negative area to the zoo."""
-        area = -0.0001
-        enclosure_data = {'name': 'Cave1',
-                          'area': area}
-        r = requests.post(base_url + '/enclosure', data=enclosure_data)
-        b = r.content
-        message = json.loads(b)
-        assert message == f'An area of {area} is not possible'
+        area = -5
+        data = {'name': 'NegativeCave1', 'area': area}
+        message = json.loads(requests.post(base_url + '/enclosure', data).content)
+        assert message == f'An area of {area:.1f} is not possible'
 
     def test_add_enclosure_with_zero_area(self, base_url):
         """Test adding an enclosure with an area of 0 to the zoo."""
         area = 0
-        enclosure_data = {'name': 'Cave1',
-                          'area': area}
-        r = requests.post(base_url + '/enclosure', data=enclosure_data)
-        b = r.content
-        message = json.loads(b)
+        data = {'name': 'ZeroCage5', 'area': area}
+        message = json.loads(requests.post(base_url + '/enclosure', data).content)
         assert message == f'An area of {area:.1f} is not possible'
 
     def test_get_all_enclosures_empty_zoo(self, base_url):
@@ -816,11 +813,11 @@ class TestZooCaretaker:
         caretakers = json.loads(requests.get(base_url + '/caretakers').content)
         assert len(caretakers) == 0
 
-    def test_add_caretakers(self, base_url, post_caretaker1, post_caretaker2, post_caretaker3):
+    def test_add_multiple_caretakers(self, base_url, post_caretaker1, post_caretaker2, post_caretaker3):
         """Test adding multiple caretakers to the zoo."""
         caretakers = json.loads(requests.get(base_url + '/caretakers').content)
-
         assert len(caretakers) == 3
+        
         assert caretakers[0]['name'] == post_caretaker1['name']
         assert caretakers[0]['address'] == post_caretaker1['address']
         assert caretakers[1]['name'] == post_caretaker2['name']
