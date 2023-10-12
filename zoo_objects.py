@@ -26,7 +26,9 @@ class Animal:
         If the animal gets moved from one enclosure to another remove
         the animal from the old enclosure's list of animals."""
         if isinstance(enclosure, Enclosure):
-            if self.enclosure is not None:
+            if self.enclosure == enclosure:
+                return
+            elif self.enclosure is not None:
                 self.enclosure.remove_animal(self)
             self.enclosure = enclosure
             enclosure.add_animal(self)
@@ -45,10 +47,19 @@ class Animal:
         If the animal gets moved from one caretaker to another remove
         the animal from the old caretakers' list of animals."""
         if isinstance(caretaker, Caretaker):
-            if self.caretaker is not None:
+            if self.caretaker == caretaker:
+                return
+            elif self.caretaker is not None:
                 self.caretaker.remove_animal(self)
             self.caretaker = caretaker
             caretaker.add_animal(self)
+            
+    def unset_caretaker(self):
+        """Remove the animal from the caretaker that cared for it and 
+        set its caretaker to its default value."""
+        if self.caretaker is not None:
+            self.caretaker.remove_animal(self)
+            self.caretaker = None
 
     def feed(self):
         """Add a new feeding record."""
@@ -107,7 +118,7 @@ class Caretaker:
     def get_animals(self) -> list[Animal]:
         """Return a list of animals that this caretaker cares for."""
         return self.animals
-
+    
     def to_json(self):
         """To avoid circular references use this custom json encoding,
         when displaying a Caretaker.
