@@ -27,6 +27,12 @@ create_enclosure_parser.add_argument('name', type=str, required=True,
 create_enclosure_parser.add_argument('area', type=float, required=True,
                                      help='The total area of the enclosure in square meters. For example \'25.5\'')
 
+create_caretaker_parser = reqparse.RequestParser()
+create_caretaker_parser.add_argument('name', type=str, required=True,
+                                     help='The name of the caretaker. For example \'Laetitia\'')
+create_caretaker_parser.add_argument('address', type=str, required=True,
+                                     help='The address of the caretaker. For example \'Blond-Street 19\'')
+
 set_home_parser = reqparse.RequestParser()
 set_home_parser.add_argument('enclosure_id', type=str, required=True,
                              help='The ID of the enclosure where the animal will live. For example \'en889d3a-f378-416c-9c88-2dae19fc0f3c\'')
@@ -34,6 +40,9 @@ set_home_parser.add_argument('enclosure_id', type=str, required=True,
 give_birth_parser = reqparse.RequestParser()
 give_birth_parser.add_argument('animal_id', type=str, required=True,
                                help='The ID of the mother animal. For example \'an889d3a-f378-416c-9c88-2dae19fc0f3c\'')
+
+
+# ---- Animal API calls ----
 
 
 @api.route('/animal')
@@ -115,8 +124,8 @@ class SetHomeAnimal(Resource):
 
         targeted_animal.set_home(targeted_enclosure)
         return jsonify(targeted_animal)
-    
-    
+
+
 @api.route('/animal/birth')
 class GiveBirthAnimal(Resource):
     @api.doc(parser=give_birth_parser)
@@ -131,6 +140,9 @@ class GiveBirthAnimal(Resource):
         child = targeted_animal.birth()
         my_zoo.add_animal(child)
         return jsonify(child)
+    
+    
+# ---- Enclosure API calls ----
 
 
 @api.route('/enclosure')
@@ -191,6 +203,22 @@ class AllAnimalsInEnclosure(Resource):
             return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
         animals = targeted_enclosure.get_animals()
         return jsonify(animals)
+    
+    
+# ---- Caretaker API calls ----
+
+
+@api.route('/caretaker')
+class CreateCaretaker(Resource):
+    @api.doc(parser=create_caretaker_parser)
+    def post(self):
+        args = create_caretaker_parser.parse_args()
+        name = args['name']
+        address = args['address']
+
+        new_caretaker = Caretaker(name, address)
+        my_zoo.add_caretaker(new_caretaker)
+        return jsonify(new_caretaker)
 
 
 if __name__ == '__main__':

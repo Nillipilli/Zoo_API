@@ -49,17 +49,17 @@ def enclosure3() -> Enclosure:
 
 @pytest.fixture
 def caretaker1() -> Caretaker:
-    return Caretaker('Laetitia', 'blond-street 19')
+    return Caretaker('Laetitia', 'Blond-Street 19')
 
 
 @pytest.fixture
 def caretaker2() -> Caretaker:
-    return Caretaker('Siena', 'brown rose hall 2')
+    return Caretaker('Siena', 'Brown Rose Hall 2')
 
 
 @pytest.fixture
 def caretaker3() -> Caretaker:
-    return Caretaker('Pitt', 'gameon town 123')
+    return Caretaker('Pitt', 'Gameon Town 123')
 
 
 # ---- API fixtures
@@ -123,3 +123,24 @@ def post_enclosure3(base_url: str, enclosure3: Enclosure) -> dict:
     enclosure3_data = {'name': enclosure3.name,
                        'area': enclosure3.area}
     return json.loads(requests.post(base_url + '/enclosure', data=enclosure3_data).content)
+
+
+@pytest.fixture
+def post_caretaker1(base_url: str, caretaker1: Caretaker) -> dict:
+    caretaker1_data = {'name': caretaker1.name,
+                       'address': caretaker1.address}
+    return json.loads(requests.post(base_url + '/caretaker', data=caretaker1_data).content)
+
+
+@pytest.fixture
+def post_caretaker2(base_url: str, caretaker2: Caretaker) -> dict:
+    caretaker2_data = {'name': caretaker2.name,
+                       'address': caretaker2.address}
+    return json.loads(requests.post(base_url + '/caretaker', data=caretaker2_data).content)
+
+
+@pytest.fixture
+def post_caretaker3(base_url: str, caretaker3: Caretaker) -> dict:
+    caretaker3_data = {'name': caretaker3.name,
+                       'address': caretaker3.address}
+    return json.loads(requests.post(base_url + '/caretaker', data=caretaker3_data).content)
