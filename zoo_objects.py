@@ -129,7 +129,7 @@ class Caretaker:
             "id": self.id,
             "name": self.name,
             "address": self.address,
-            "animals": [animal.id for animal in self.animals],
+            "animals": [animal.id for animal in self.animals]
         }
 
 

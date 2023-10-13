@@ -5,18 +5,18 @@ from zoo_objects import Enclosure, Animal
 
 
 class TestEnclosure:
-    def test_get_all_animals_empty_enclosure(self, enclosure1: Enclosure):
+    def test_get_animals_empty_enclosure(self, enclosure1: Enclosure):
         """Test retrieving all animals inside an empty enclosure."""
         assert len(enclosure1.get_animals()) == 0
 
-    def test_get_all_animals_single_animal(self, enclosure1: Enclosure, animal1: Animal):
+    def test_get_animals_single_animal(self, enclosure1: Enclosure, animal1: Animal):
         """Test retrieving all animals in an enclosure with a single 
         animal in it."""
         animal1.set_home(enclosure1)
         assert len(enclosure1.get_animals()) == 1
         assert animal1 in enclosure1.get_animals()
 
-    def test_get_all_animals_multiple_animals(self, enclosure1: Enclosure, animal1: Animal, animal2: Animal, animal3: Animal):
+    def test_get_animals_multiple_animals(self, enclosure1: Enclosure, animal1: Animal, animal2: Animal, animal3: Animal):
         """Test retrieving all animals in an enclosure with many 
         animals."""
         animal1.set_home(enclosure1)
