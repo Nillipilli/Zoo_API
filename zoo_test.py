@@ -60,52 +60,52 @@ class TestZooAnimal:
         zoo1.remove_animal(animal1)
         zoo1.remove_animal(animal1)
         assert len(zoo1.animals) == 0
-        
+
     def test_remove_animal_with_home(self, zoo1: Zoo, animal1: Animal, enclosure1: Enclosure):
         """Test removing an animal that has a home assigned to it."""
         zoo1.add_animal(animal1)
         assert len(zoo1.animals) == 1
-        
+
         animal1.set_home(enclosure1)
         assert animal1.enclosure == enclosure1
         assert len(enclosure1.animals) == 1
-        assert animal1 in enclosure1.animals 
+        assert animal1 in enclosure1.animals
 
         zoo1.remove_animal(animal1)
         assert len(zoo1.animals) == 0
         assert animal1.enclosure is None
         assert len(enclosure1.animals) == 0
-        
+
     def test_remove_animal_with_caretaker(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
         """Test removing an animal that has a caretaker assigned 
         to it."""
         zoo1.add_animal(animal1)
         assert len(zoo1.animals) == 1
-        
+
         animal1.set_caretaker(caretaker1)
         assert animal1.caretaker == caretaker1
         assert len(caretaker1.animals) == 1
-        assert animal1 in caretaker1.animals 
+        assert animal1 in caretaker1.animals
 
         zoo1.remove_animal(animal1)
         assert len(zoo1.animals) == 0
         assert animal1.caretaker is None
         assert len(caretaker1.animals) == 0
-        
+
     def test_remove_animal_with_home_and_caretaker(self, zoo1: Zoo, animal1: Animal, enclosure1: Enclosure, caretaker1: Caretaker):
         """Test removing an animal that has a home and a caretaker 
         assigned to it."""
         zoo1.add_animal(animal1)
         assert len(zoo1.animals) == 1
-        
+
         animal1.set_home(enclosure1)
         animal1.set_caretaker(caretaker1)
         assert animal1.enclosure == enclosure1
         assert animal1.caretaker == caretaker1
         assert len(enclosure1.animals) == 1
         assert len(caretaker1.animals) == 1
-        assert animal1 in enclosure1.animals 
-        assert animal1 in caretaker1.animals 
+        assert animal1 in enclosure1.animals
+        assert animal1 in caretaker1.animals
 
         zoo1.remove_animal(animal1)
         assert animal1.enclosure == None
@@ -195,6 +195,43 @@ class TestZooCaretaker:
         zoo1.remove_caretaker(caretaker1)
         assert len(zoo1.caretakers) == 0
 
+    def test_remove_caretaker_with_animal_no_other_caretakers(self, zoo1: Zoo, caretaker1: Caretaker, animal1: Animal):
+        """Test removing a caretaker that has an animal assigned,
+        while no other caretaker exists.
+
+        It is not possible to delete this caretaker."""
+        zoo1.add_caretaker(caretaker1)
+        assert len(zoo1.caretakers) == 1
+
+        animal1.set_caretaker(caretaker1)
+
+        assert zoo1.remove_caretaker(caretaker1) is False
+        assert len(zoo1.caretakers) == 1
+
+    def test_remove_caretaker_with_animal_and_other_caretakers(self, zoo1: Zoo, caretaker1: Caretaker, caretaker2: Caretaker, caretaker3: Caretaker, animal1: Animal):
+        """Test removing a caretaker that has an animal assigned,
+        while at least one other caretaker exists.
+
+        It is possible to delete the caretaker. The animal gets added to
+        the next caretaker in the list."""
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+        zoo1.add_caretaker(caretaker3)
+        assert len(zoo1.caretakers) == 3
+
+        animal1.set_caretaker(caretaker1)
+        assert animal1.caretaker == caretaker1
+        assert len(caretaker1.animals) == 1
+        assert animal1 in caretaker1.animals
+
+        assert zoo1.remove_caretaker(caretaker1) is True
+        assert len(zoo1.caretakers) == 2
+
+        assert animal1.caretaker == caretaker2
+        assert len(caretaker1.animals) == 0
+        assert len(caretaker2.animals) == 1
+        assert animal1 in caretaker2.animals
+
     def test_get_caretaker(self, zoo1: Zoo, caretaker1: Caretaker):
         """Test getting a caretaker via an existing caretaker ID."""
         zoo1.add_caretaker(caretaker1)
@@ -276,6 +313,43 @@ class TestZooEnclosure:
         zoo1.remove_enclosure(enclosure1)
         zoo1.remove_enclosure(enclosure1)
         assert len(zoo1.enclosures) == 0
+
+    def test_remove_enclosure_with_animal_no_other_enclosures(self, zoo1: Zoo, enclosure1: Enclosure, animal1: Animal):
+        """Test removing an enclosure that is the home of an animal 
+        while no other enclosure exists.
+
+        It is not possible to delete this enclosure."""
+        zoo1.add_enclosure(enclosure1)
+        assert len(zoo1.enclosures) == 1
+
+        animal1.set_home(enclosure1)
+
+        assert zoo1.remove_enclosure(enclosure1) is False
+        assert len(zoo1.enclosures) == 1
+
+    def test_remove_enclosure_with_animal_and_other_enclosures(self, zoo1: Zoo, enclosure1: Enclosure, enclosure2: Enclosure, enclosure3: Enclosure, animal1: Animal):
+        """Test removing an enclosure that is the home of an animal 
+        while at least one other enclosure exists.
+
+        It is possible to delete the enclosure. The animal gets added to
+        the next enclosure in the list."""
+        zoo1.add_enclosure(enclosure1)
+        zoo1.add_enclosure(enclosure2)
+        zoo1.add_enclosure(enclosure3)
+        assert len(zoo1.enclosures) == 3
+
+        animal1.set_home(enclosure1)
+        assert animal1.enclosure == enclosure1
+        assert len(enclosure1.animals) == 1
+        assert animal1 in enclosure1.animals
+
+        assert zoo1.remove_enclosure(enclosure1) is True
+        assert len(zoo1.enclosures) == 2
+
+        assert animal1.enclosure == enclosure2
+        assert len(enclosure1.animals) == 0
+        assert len(enclosure2.animals) == 1
+        assert animal1 in enclosure2.animals
 
     def test_get_enclosure(self, zoo1: Zoo, enclosure1: Enclosure):
         """Test getting an enclosure via an existing enclosure ID."""

@@ -60,9 +60,7 @@ class Zoo:
 
                     if new_caretaker:
                         for animal in caretaker.get_animals():
-                            pass
-                            # TODO implement care_for method
-                            # caretaker.care_for
+                            animal.set_caretaker(new_caretaker)
                     self.caretakers.remove(caretaker)
         return True
 
