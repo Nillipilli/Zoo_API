@@ -172,7 +172,7 @@ class Enclosure:
             "name": self.name,
             "area": self.area,
             "animals": [animal.id for animal in self.animals],
-            "cleaning_record": self.cleaning_record,
+            "cleaning_record": self.cleaning_record
         }
 
 
