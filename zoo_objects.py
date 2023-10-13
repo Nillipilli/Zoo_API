@@ -2,7 +2,7 @@ import uuid
 import datetime
 from typing import TypeAlias
 
-# use this when normal type aliases for classes do not work correctly
+# Use this when normal type aliases for classes do not work correctly
 animal_: TypeAlias = 'Animal'
 enclosure_: TypeAlias = 'Enclosure'
 caretaker_: TypeAlias = 'Caretaker'
@@ -19,12 +19,12 @@ class Animal:
         self.feeding_record: list[datetime.datetime] = []
         self.medical_record: list[datetime.datetime] = []
 
-    def set_home(self, enclosure: enclosure_):
+    def set_home(self, enclosure: enclosure_) -> None:
         """Assign the given enclosure to this animal and add this animal
         to the list of animals in this enclosure.
 
         If the animal gets moved from one enclosure to another remove
-        the animal from the old enclosure's list of animals."""
+        the animal from the old enclosure's list of animals first."""
         if isinstance(enclosure, Enclosure):
             if self.enclosure == enclosure:
                 return
@@ -33,19 +33,19 @@ class Animal:
             self.enclosure = enclosure
             enclosure.add_animal(self)
 
-    def unset_home(self):
+    def unset_home(self) -> None:
         """Remove the animal from the enclosure it used to live in and 
         set its enclosure to its default value."""
         if self.enclosure is not None:
             self.enclosure.remove_animal(self)
             self.enclosure = None
 
-    def set_caretaker(self, caretaker: caretaker_):
+    def set_caretaker(self, caretaker: caretaker_) -> None:
         """Assign the given caretaker to this animal and add this animal
-        to the list of animals assigned to the caretaker.
+        to the list of assigned animals of the given caretaker.
 
         If the animal gets moved from one caretaker to another remove
-        the animal from the old caretakers' list of animals."""
+        the animal from the old caretakers' list of animals first."""
         if isinstance(caretaker, Caretaker):
             if self.caretaker == caretaker:
                 return
@@ -53,19 +53,19 @@ class Animal:
                 self.caretaker.remove_animal(self)
             self.caretaker = caretaker
             caretaker.add_animal(self)
-            
-    def unset_caretaker(self):
+
+    def unset_caretaker(self) -> None:
         """Remove the animal from the caretaker that cared for it and 
         set its caretaker to its default value."""
         if self.caretaker is not None:
             self.caretaker.remove_animal(self)
             self.caretaker = None
 
-    def feed(self):
+    def feed(self) -> None:
         """Add a new feeding record."""
         self.feeding_record.append(datetime.datetime.now())
 
-    def vet(self):
+    def vet(self) -> None:
         """Add a new medical record."""
         self.medical_record.append(datetime.datetime.now())
 
@@ -78,7 +78,7 @@ class Animal:
         new_animal.enclosure = self.enclosure
         return new_animal
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """To avoid circular references use this custom json encoding,
         when displaying an Animal.
 
@@ -114,12 +114,12 @@ class Caretaker:
         if isinstance(animal, Animal):
             if animal in self.animals:
                 self.animals.remove(animal)
-                
+
     def get_animals(self) -> list[Animal]:
         """Return a list of animals that this caretaker cares for."""
         return self.animals
-    
-    def to_json(self):
+
+    def to_json(self) -> dict:
         """To avoid circular references use this custom json encoding,
         when displaying a Caretaker.
 
@@ -157,11 +157,11 @@ class Enclosure:
         """Return a list of animals that live in this enclosure."""
         return self.animals
 
-    def clean(self):
+    def clean(self) -> None:
         """Add a new cleaning record."""
         self.cleaning_record.append(datetime.datetime.now())
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """To avoid circular references use this custom json encoding,
         when displaying an Enclosure.
 
@@ -177,10 +177,4 @@ class Enclosure:
 
 
 if __name__ == '__main__':
-    a = Animal('Tigris', 'Tiger', 1)
-    a.feed()
-    print(a.feeding_record)
-
-    e = Enclosure('cage', 100)
-    a.set_home(e)
-    print(a.enclosure)
+    pass
