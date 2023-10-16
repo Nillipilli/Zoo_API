@@ -1210,3 +1210,87 @@ class TestZooCaretaker:
         message = json.loads(requests.post(
             base_url + f'/caretaker/{unknown_id2}/care/{unknown_id}', data).content)
         assert message == f'Animal with ID {unknown_id} has not been found'
+
+    def test_get_animals_caretaker_without_animals(self, base_url, post_caretaker1):
+        """Test getting all animals of a caretaker without animals."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(caretakers) == 1
+
+        caretaker_animals = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/animals').content)
+        assert len(caretaker_animals) == 0
+
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(caretakers) == 0
+
+    def test_get_animals_single_animal(self, base_url, post_caretaker1, post_animal1):
+        """Test getting all animals of a caretaker with a single 
+        animal."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 1
+        assert len(animals) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'caretaker_id': post_caretaker1["id"]}
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data)
+
+        caretaker_animals = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/animals').content)
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        assert len(caretaker_animals) == 1
+        assert new_animal_data in caretaker_animals
+
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 0
+        assert len(animals) == 0
+
+    def test_get_animals_multiple_animals(self, base_url, post_caretaker1, post_animal1, post_animal2, post_animal3):
+        """Test getting all animals of a caretaker with multiple 
+        animals."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 1
+        assert len(animals) == 3
+
+        count = 1
+        for animal_dict in animals:
+            data = {'animal_id': animal_dict["id"],
+                    'caretaker_id': post_caretaker1["id"]}
+            requests.post(
+                base_url + f'/caretaker/{post_caretaker1["id"]}/care/{animal_dict["id"]}', data)
+            caretaker_animals = json.loads(requests.get(
+                base_url + f'/caretaker/{post_caretaker1["id"]}/animals').content)
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert len(caretaker_animals) == count
+            assert caretaker_animals[-1] == new_animal_data
+            count += 1
+
+        for animal_dict in animals:
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 0
+        assert len(animals) == 0
+
+    def test_get_animals_unknown_caretaker_id(self, base_url, unknown_id):
+        """Test getting all animals of a not existing caretaker."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 0
+        assert len(animals) == 0
+
+        message = json.loads(requests.get(
+            base_url + f'/caretaker/{unknown_id}/animals').content)
+        assert message == f'Caretaker with ID {unknown_id} has not been found'

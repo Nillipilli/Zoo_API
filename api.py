@@ -281,5 +281,15 @@ class AssignCaretaker(Resource):
         return jsonify(targeted_caretaker)
 
 
+@api.route('/caretaker/<caretaker_id>/animals')
+class AllAnimalsOfCaretaker(Resource):
+    def get(self, caretaker_id):
+        targeted_caretaker = my_zoo.get_caretaker(caretaker_id)
+        if not targeted_caretaker:
+            return jsonify(f'Caretaker with ID {caretaker_id} has not been found')
+        animals = targeted_caretaker.get_animals()
+        return jsonify(animals)
+
+
 if __name__ == '__main__':
     app.run(debug=False, port=7890)
