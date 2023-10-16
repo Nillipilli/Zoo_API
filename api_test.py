@@ -1088,6 +1088,94 @@ class TestZooCaretaker:
             base_url + f'/caretaker/{unknown_id}').content)
         assert message == f'Caretaker with ID {unknown_id} has not been found'
 
+    def test_delete_caretaker_with_animal_transfer(self, base_url, post_caretaker1, post_caretaker2, post_caretaker3, post_animal1):
+        """Test deleting an existing caretaker that cares for  
+        some animals, while other caretakers exist."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 3
+        assert len(animals) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'caretaker_id': post_caretaker1["id"]}
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_caretaker1_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert new_animal_data['caretaker'] == post_caretaker1["id"]
+        assert post_animal1["id"] in new_caretaker1_data['animals']
+
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_caretaker2_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker2["id"]}').content)
+        assert new_animal_data['caretaker'] == post_caretaker2["id"]
+        assert post_animal1["id"] in new_caretaker2_data['animals']
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(caretakers) == 2
+
+        requests.delete(base_url + f'/caretaker/{post_caretaker2["id"]}')
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_caretaker3_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker3["id"]}').content)
+        assert new_animal_data['caretaker'] == post_caretaker3["id"]
+        assert post_animal1["id"] in new_caretaker3_data['animals']
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(caretakers) == 1
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker3["id"]}')
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 0
+        assert len(animals) == 0
+
+    def test_delete_caretaker_cannot_transfer(self, base_url, post_caretaker1, post_animal1):
+        """Test deleting an existing caretaker that cares for
+        some animals, while no other caretaker exists"""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 1
+        assert len(animals) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'caretaker_id': post_caretaker1["id"]}
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_caretaker1_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert new_animal_data['caretaker'] == post_caretaker1["id"]
+        assert post_animal1["id"] in new_caretaker1_data['animals']
+
+        message = json.loads(requests.delete(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert message == (f'Caretaker with ID {post_caretaker1["id"]} has '
+                           'not been removed because the animals cannot be '
+                           'transferred to another caretaker')
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 0
+        assert len(animals) == 0
+
     def test_set_caretaker(self, base_url, post_animal1, post_caretaker1):
         """Test setting the first caretaker of an animal."""
         animals = json.loads(requests.get(base_url + '/animals').content)
