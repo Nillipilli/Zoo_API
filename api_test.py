@@ -125,7 +125,8 @@ class TestZooAnimal:
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 1
 
-        message = json.loads(requests.delete(base_url + f'/animal/{post_animal1["id"]}').content)
+        message = json.loads(requests.delete(
+            base_url + f'/animal/{post_animal1["id"]}').content)
         assert message == f'Animal with ID {post_animal1["id"]} has been removed'
 
         animals = json.loads(requests.get(base_url + '/animals').content)
@@ -148,7 +149,7 @@ class TestZooAnimal:
         data = {'animal_id': post_animal1["id"],
                 'enclosure_id': post_enclosure1["id"]}
         requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data)
-        
+
         new_animal_data = json.loads(requests.get(
             base_url + f'/animal/{post_animal1["id"]}').content)
         new_enclosure_data = json.loads(requests.get(
@@ -171,7 +172,7 @@ class TestZooAnimal:
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(animals) == 0
         assert len(enclosures) == 0
-        
+
     def test_delete_animal_with_caretaker(self, base_url, post_animal1, post_caretaker1):
         """Test deleting an animal that is already assigned to a
         caretaker."""
@@ -182,8 +183,9 @@ class TestZooAnimal:
 
         data = {'animal_id': post_animal1["id"],
                 'caretaker_id': post_caretaker1["id"]}
-        requests.post(base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data)
-        
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data)
+
         new_animal_data = json.loads(requests.get(
             base_url + f'/animal/{post_animal1["id"]}').content)
         new_caretaker_data = json.loads(requests.get(
@@ -206,7 +208,7 @@ class TestZooAnimal:
         caretakers = json.loads(requests.get(base_url + '/caretakers').content)
         assert len(animals) == 0
         assert len(caretakers) == 0
-        
+
     def test_delete_animal_with_home_and_caretaker(self, base_url, post_animal1, post_enclosure1, post_caretaker1):
         """Test deleting an animal that already lives in an enclosure 
         and is assigned to a caretaker."""
@@ -218,12 +220,13 @@ class TestZooAnimal:
         assert len(caretakers) == 1
 
         data1 = {'animal_id': post_animal1["id"],
-                'enclosure_id': post_enclosure1["id"]}
+                 'enclosure_id': post_enclosure1["id"]}
         data2 = {'animal_id': post_animal1["id"],
-                'caretaker_id': post_caretaker1["id"]}
+                 'caretaker_id': post_caretaker1["id"]}
         requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data1)
-        requests.post(base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data2)
-        
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data2)
+
         new_animal_data = json.loads(requests.get(
             base_url + f'/animal/{post_animal1["id"]}').content)
         new_enclosure_data = json.loads(requests.get(
@@ -530,6 +533,149 @@ class TestZooAnimal:
             base_url + f'/animal/birth', data).content)
         assert message == f'Animal with ID {unknown_id} has not been found'
 
+    def test_death(self, base_url, post_animal1):
+        """Test an existing animal dies."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+
+        data = {'animal_id': post_animal1['id']}
+        message = json.loads(requests.post(
+            base_url + '/animal/death', data).content)
+        assert message == f'Animal with ID {post_animal1["id"]} has died'
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+
+    def test_death_not_existing_animal(self, base_url, unknown_id):
+        """Test a not existing animal dies."""
+        data = {'animal_id': unknown_id}
+        message = json.loads(requests.post(
+            base_url + '/animal/death', data).content)
+        assert message == f'Animal with ID {unknown_id} has not been found'
+
+    def test_death_animal_with_home(self, base_url, post_animal1, post_enclosure1):
+        """Test an animal with home dies."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(animals) == 1
+        assert len(enclosures) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'enclosure_id': post_enclosure1["id"]}
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_enclosure_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        assert new_animal_data['enclosure'] == post_enclosure1["id"]
+        assert len(new_enclosure_data['animals']) == 1
+        assert post_animal1["id"] in new_enclosure_data['animals']
+
+        data = {'animal_id': post_animal1['id']}
+        message = json.loads(requests.post(
+            base_url + '/animal/death', data).content)
+        assert message == f'Animal with ID {post_animal1["id"]} has died'
+
+        new_enclosure_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        assert len(new_enclosure_data['animals']) == 0
+
+        # Cleanup
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(animals) == 0
+        assert len(enclosures) == 0
+
+    def test_death_animal_with_caretaker(self, base_url, post_animal1, post_caretaker1):
+        """Test an animal with caretaker dies."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 1
+        assert len(caretakers) == 1
+
+        data = {'animal_id': post_animal1["id"],
+                'caretaker_id': post_caretaker1["id"]}
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_caretaker_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert new_animal_data['caretaker'] == post_caretaker1["id"]
+        assert len(new_caretaker_data['animals']) == 1
+        assert post_animal1["id"] in new_caretaker_data['animals']
+
+        data = {'animal_id': post_animal1['id']}
+        message = json.loads(requests.post(
+            base_url + '/animal/death', data).content)
+        assert message == f'Animal with ID {post_animal1["id"]} has died'
+
+        new_caretaker_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert len(new_caretaker_data['animals']) == 0
+
+        # Cleanup
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0
+
+    def test_death_animal_with_home_and_caretaker(self, base_url, post_animal1, post_enclosure1, post_caretaker1):
+        """Test an animal with caretaker and home dies."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 1
+        assert len(enclosures) == 1
+        assert len(caretakers) == 1
+
+        data1 = {'animal_id': post_animal1["id"],
+                 'enclosure_id': post_enclosure1["id"]}
+        data2 = {'animal_id': post_animal1["id"],
+                 'caretaker_id': post_caretaker1["id"]}
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data1)
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data2)
+
+        new_animal_data = json.loads(requests.get(
+            base_url + f'/animal/{post_animal1["id"]}').content)
+        new_enclosure_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        new_caretaker_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert new_animal_data['enclosure'] == post_enclosure1["id"]
+        assert new_animal_data['caretaker'] == post_caretaker1["id"]
+        assert len(new_enclosure_data['animals']) == 1
+        assert len(new_caretaker_data['animals']) == 1
+        assert post_animal1["id"] in new_enclosure_data['animals']
+        assert post_animal1["id"] in new_caretaker_data['animals']
+
+        data = {'animal_id': post_animal1['id']}
+        message = json.loads(requests.post(
+            base_url + '/animal/death', data).content)
+        assert message == f'Animal with ID {post_animal1["id"]} has died'
+
+        new_enclosure_data = json.loads(requests.get(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        new_caretaker_data = json.loads(requests.get(
+            base_url + f'/caretaker/{post_caretaker1["id"]}').content)
+        assert len(new_enclosure_data['animals']) == 0
+        assert len(new_caretaker_data['animals']) == 0
+
+        # Cleanup
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(enclosures) == 0
+        assert len(caretakers) == 0
+
 
 class TestZooEnclosure:
     def test_add_enclosure(self, base_url, post_enclosure1):
@@ -624,7 +770,8 @@ class TestZooEnclosure:
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)
         assert len(enclosures) == 1
 
-        message = json.loads(requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}').content)
+        message = json.loads(requests.delete(
+            base_url + f'/enclosure/{post_enclosure1["id"]}').content)
         assert message == f'Enclosure with ID {post_enclosure1["id"]} has been removed'
 
         enclosures = json.loads(requests.get(base_url + '/enclosures').content)

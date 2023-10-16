@@ -41,6 +41,10 @@ give_birth_parser = reqparse.RequestParser()
 give_birth_parser.add_argument('animal_id', type=str, required=True,
                                help='The ID of the mother animal. For example \'an889d3a-f378-416c-9c88-2dae19fc0f3c\'')
 
+animal_death_parser = reqparse.RequestParser()
+animal_death_parser.add_argument('animal_id', type=str, required=True,
+                                 help='The ID of the animal that died. For example \'an889d3a-f378-416c-9c88-2dae19fc0f3c\'')
+
 
 # ---- Animal API calls ----
 
@@ -142,6 +146,21 @@ class GiveBirthAnimal(Resource):
         return jsonify(child)
 
 
+@api.route('/animal/death')
+class DeathAnimal(Resource):
+    @api.doc(parser=animal_death_parser)
+    def post(self):
+        args = animal_death_parser.parse_args()
+        animal_id = args['animal_id']
+
+        targeted_animal = my_zoo.get_animal(animal_id)
+        if not targeted_animal:
+            return jsonify(f'Animal with ID {animal_id} has not been found')
+
+        my_zoo.remove_animal(targeted_animal)
+        return jsonify(f'Animal with ID {animal_id} has died')
+
+
 # ---- Enclosure API calls ----
 
 
@@ -232,12 +251,12 @@ class CaretakerID(Resource):
         targeted_caretaker = my_zoo.get_caretaker(caretaker_id)
         if not targeted_caretaker:
             return jsonify(f'Caretaker with ID {caretaker_id} has not been found')
-        
+
         if not my_zoo.remove_caretaker(targeted_caretaker):
             return jsonify((f'Caretaker with ID {caretaker_id} has not been '
                             'removed because the animals cannot be '
                             'transferred to another caretaker'))
-            
+
         return jsonify(f'Caretaker with ID {caretaker_id} has been removed')
 
 
@@ -245,7 +264,7 @@ class CaretakerID(Resource):
 class AllCaretakers(Resource):
     def get(self):
         return jsonify(my_zoo.get_all_caretakers())
-    
+
 
 @api.route('/caretaker/<caretaker_id>/care/<animal_id>/')
 class AssignCaretaker(Resource):
@@ -253,11 +272,11 @@ class AssignCaretaker(Resource):
         targeted_animal = my_zoo.get_animal(animal_id)
         if not targeted_animal:
             return jsonify(f'Animal with ID {animal_id} has not been found')
-        
+
         targeted_caretaker = my_zoo.get_caretaker(caretaker_id)
         if not targeted_caretaker:
             return jsonify(f'Caretaker with ID {caretaker_id} has not been found')
-        
+
         targeted_animal.set_caretaker(targeted_caretaker)
         return jsonify(targeted_caretaker)
 
