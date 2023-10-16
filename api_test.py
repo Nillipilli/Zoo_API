@@ -1087,3 +1087,126 @@ class TestZooCaretaker:
         message = json.loads(requests.delete(
             base_url + f'/caretaker/{unknown_id}').content)
         assert message == f'Caretaker with ID {unknown_id} has not been found'
+
+    def test_set_caretaker(self, base_url, post_animal1, post_caretaker1):
+        """Test setting the first caretaker of an animal."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 1
+        assert len(caretakers) == 1
+
+        for animal_dict in animals:
+            assert animal_dict['caretaker'] is None
+
+            data = {'animal_id': animal_dict["id"],
+                    'caretaker_id': caretakers[0]["id"]}
+            requests.post(
+                base_url + f'/caretaker/{post_caretaker1["id"]}/care/{animal_dict["id"]}', data)
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert new_animal_data['caretaker'] == post_caretaker1["id"]
+
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+        requests.delete(base_url + f'/caretaker/{caretakers[0]["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0
+
+    def test_change_caretaker(self, base_url, post_animal1, post_caretaker1, post_caretaker2):
+        """Test changing the caretaker of an animal."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 1
+        assert len(caretakers) == 2
+
+        for animal_dict in animals:
+            assert animal_dict['caretaker'] is None
+
+            data = {'animal_id': animal_dict["id"],
+                    'caretaker_id': caretakers[0]["id"]}
+            requests.post(
+                base_url + f'/caretaker/{post_caretaker1["id"]}/care/{animal_dict["id"]}', data)
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert new_animal_data['caretaker'] == caretakers[0]["id"]
+
+            data = {'animal_id': animal_dict["id"],
+                    'caretaker_id': caretakers[1]["id"]}
+            requests.post(
+                base_url + f'/caretaker/{post_caretaker2["id"]}/care/{animal_dict["id"]}', data)
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert new_animal_data['caretaker'] == caretakers[1]["id"]
+
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+        requests.delete(base_url + f'/caretaker/{caretakers[0]["id"]}')
+        requests.delete(base_url + f'/caretaker/{caretakers[1]["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0
+
+    def test_set_caretaker_unknown_caretaker(self, base_url, post_animal1, unknown_id):
+        """Test setting the caretaker of an animal by using an invalid 
+        caretaker ID."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 1
+        assert len(caretakers) == 0
+
+        for animal_dict in animals:
+            assert animal_dict['caretaker'] is None
+
+            data = {'animal_id': animal_dict["id"],
+                    'caretaker_id': unknown_id}
+            message = json.loads(requests.post(
+                base_url + f'/caretaker/{unknown_id}/care/{animal_dict["id"]}', data).content)
+            assert message == f'Caretaker with ID {unknown_id} has not been found'
+
+            new_animal_data = json.loads(requests.get(
+                base_url + f'/animal/{animal_dict["id"]}').content)
+            assert new_animal_data['caretaker'] is None
+
+            requests.delete(base_url + f'/animal/{animal_dict["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0
+
+    def test_set_caretaker_unknown_animal(self, base_url, post_caretaker1, unknown_id):
+        """Test setting the caretaker of a not existing animal."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 1
+
+        data = {'animal_id': unknown_id,
+                'caretaker_id': caretakers[0]["id"]}
+        message = json.loads(requests.post(
+            base_url + f'/caretaker/{unknown_id}/care/{unknown_id}', data).content)
+        assert message == f'Animal with ID {unknown_id} has not been found'
+
+        requests.delete(base_url + f'/caretaker/{caretakers[0]["id"]}')
+
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0
+
+    def test_set_caretaker_unknown_animal_and_unknown_enclosure(self, base_url, unknown_id, unknown_id2):
+        """Test setting the caretaker of a not existing animal with a 
+        not existing caretaker."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0
+
+        data = {'animal_id': unknown_id,
+                'caretaker_id': unknown_id2}
+        message = json.loads(requests.post(
+            base_url + f'/caretaker/{unknown_id2}/care/{unknown_id}', data).content)
+        assert message == f'Animal with ID {unknown_id} has not been found'
