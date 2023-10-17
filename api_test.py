@@ -1382,3 +1382,72 @@ class TestZooCaretaker:
         message = json.loads(requests.get(
             base_url + f'/caretaker/{unknown_id}/animals').content)
         assert message == f'Caretaker with ID {unknown_id} has not been found'
+
+    def test_get_caretaker_stats_no_caretakers(self, base_url):
+        """Test getting all caretaker stats without any caretakers added
+        to the zoo so far."""
+        stats = json.loads(requests.get(base_url + '/caretaker/stats').content)
+        assert stats == {
+            'minimum_animals_under_supervision': None,
+            'maximum_animals_under_supervision': None,
+            'average_animals_under_supervision': None
+        }
+
+    def test_get_caretaker_stats_no_animals(self, base_url, post_caretaker1):
+        """Test getting all caretaker stats with no animals added
+        to any caretaker so far."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(caretakers) == 1
+
+        stats = json.loads(requests.get(base_url + '/caretaker/stats').content)
+        assert stats == {
+            'minimum_animals_under_supervision': 0,
+            'maximum_animals_under_supervision': 0,
+            'average_animals_under_supervision': 0
+        }
+
+        # Cleanup
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(caretakers) == 0
+
+    def test_get_caretaker_stats_with_animals(self, base_url, post_caretaker1, post_caretaker2, post_caretaker3,
+                                              post_animal1, post_animal2, post_animal3):
+        """Test getting all caretaker stats with animals added to 
+        caretakers."""
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(caretakers) == 3
+        assert len(animals) == 3
+
+        data1 = {'animal_id': post_animal1['id'],
+                 'caretaker_id': post_caretaker1['id']}
+        data2 = {'animal_id': post_animal2['id'],
+                 'caretaker_id': post_caretaker2['id']}
+        data3 = {'animal_id': post_animal3['id'],
+                 'caretaker_id': post_caretaker2['id']}
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker1["id"]}/care/{post_animal1["id"]}', data1)
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker2["id"]}/care/{post_animal2["id"]}', data2)
+        requests.post(
+            base_url + f'/caretaker/{post_caretaker2["id"]}/care/{post_animal3["id"]}', data3)
+
+        stats = json.loads(requests.get(base_url + '/caretaker/stats').content)
+        assert stats == {
+            'minimum_animals_under_supervision': 0,
+            'maximum_animals_under_supervision': 2,
+            'average_animals_under_supervision': 1
+        }
+
+        # Cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal2["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal3["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker2["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker3["id"]}')
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        caretakers = json.loads(requests.get(base_url + '/caretakers').content)
+        assert len(animals) == 0
+        assert len(caretakers) == 0

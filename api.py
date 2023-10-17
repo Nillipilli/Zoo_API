@@ -291,5 +291,12 @@ class AllAnimalsOfCaretaker(Resource):
         return jsonify(animals)
 
 
+@api.route('/caretaker/stats')
+class CaretakerStats(Resource):
+    def get(self):
+        stats = my_zoo.get_caretaker_stats()
+        return jsonify(stats)
+
+
 if __name__ == '__main__':
     app.run(debug=False, port=7890)
