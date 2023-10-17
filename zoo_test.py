@@ -256,6 +256,43 @@ class TestZooCaretaker:
         assert caretaker2 in zoo1.get_all_caretakers()
         assert caretaker3 in zoo1.get_all_caretakers()
 
+    def test_get_caretaker_stats_no_caretakers(self, zoo1: Zoo):
+        """Test getting all caretaker stats without any caretakers added
+        to the zoo so far."""
+        assert zoo1.get_caretaker_stats() == {
+            'minimum_animals_under_supervision': None,
+            'maximum_animals_under_supervision': None,
+            'average_animals_under_supervision': None
+        }
+
+    def test_get_caretaker_stats_no_animals(self, zoo1: Zoo, caretaker1: Caretaker):
+        """Test getting all caretaker stats with no animals added to any
+        caretaker."""
+        zoo1.add_caretaker(caretaker1)
+        assert zoo1.get_caretaker_stats() == {
+            'minimum_animals_under_supervision': 0,
+            'maximum_animals_under_supervision': 0,
+            'average_animals_under_supervision': 0
+        }
+
+    def test_get_caretaker_stats_with_animals(self, zoo1: Zoo, caretaker1: Caretaker, caretaker2: Caretaker, caretaker3: Caretaker,
+                                              animal1: Animal, animal2: Animal, animal3: Animal):
+        """Test getting all caretaker stats with animals added to 
+        caretakers."""
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+        zoo1.add_caretaker(caretaker3)
+
+        caretaker1.add_animal(animal1)
+        caretaker2.add_animal(animal2)
+        caretaker2.add_animal(animal3)
+
+        assert zoo1.get_caretaker_stats() == {
+            'minimum_animals_under_supervision': 0,
+            'maximum_animals_under_supervision': 2,
+            'average_animals_under_supervision': 1
+        }
+
 
 class TestZooEnclosure:
     def test_add_enclosure(self, zoo1: Zoo, enclosure1: Enclosure):

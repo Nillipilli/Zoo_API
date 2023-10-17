@@ -75,6 +75,23 @@ class Zoo:
     def get_all_caretakers(self) -> list[Caretaker]:
         """Return a list of all caretakers."""
         return self.caretakers
+    
+    def get_caretaker_stats(self) -> dict:
+        """Return some basic statistics about the number of animals 
+        under supervision of caretakers."""
+        animals_under_supervision = [len(caretaker.get_animals()) for caretaker in self.caretakers]
+        if not animals_under_supervision:
+            return {
+                'minimum_animals_under_supervision': None,
+                'maximum_animals_under_supervision': None,
+                'average_animals_under_supervision': None
+            }
+        else:
+            return {
+                'minimum_animals_under_supervision': min(animals_under_supervision),
+                'maximum_animals_under_supervision': max(animals_under_supervision),
+                'average_animals_under_supervision': sum(animals_under_supervision) / len(animals_under_supervision)
+            }
 
     def add_enclosure(self, enclosure: Enclosure) -> None:
         """Add a new enclosure to the zoo, but only if it does not 
