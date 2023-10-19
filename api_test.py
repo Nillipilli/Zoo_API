@@ -1388,9 +1388,9 @@ class TestZooCaretaker:
         to the zoo so far."""
         stats = json.loads(requests.get(base_url + '/caretaker/stats').content)
         assert stats == {
-            'minimum_animals_under_supervision': None,
-            'maximum_animals_under_supervision': None,
-            'average_animals_under_supervision': None
+            'minimum_animals_under_supervision': 0,
+            'maximum_animals_under_supervision': 0,
+            'average_animals_under_supervision': 0
         }
 
     def test_get_caretaker_stats_no_animals(self, base_url, post_caretaker1):

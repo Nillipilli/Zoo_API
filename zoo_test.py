@@ -141,7 +141,7 @@ class TestZooAnimal:
         """Test getting all animal stats without any animals added
         to the zoo so far."""
         assert zoo1.get_animal_stats() == {
-            'animals_per_species': None
+            'animals_per_species': {}
         }
 
     def test_get_animal_stats_one_animal(self, zoo1: Zoo, animal1: Animal):
@@ -289,9 +289,9 @@ class TestZooCaretaker:
         """Test getting all caretaker stats without any caretakers added
         to the zoo so far."""
         assert zoo1.get_caretaker_stats() == {
-            'minimum_animals_under_supervision': None,
-            'maximum_animals_under_supervision': None,
-            'average_animals_under_supervision': None
+            'minimum_animals_under_supervision': 0,
+            'maximum_animals_under_supervision': 0,
+            'average_animals_under_supervision': 0
         }
 
     def test_get_caretaker_stats_no_animals(self, zoo1: Zoo, caretaker1: Caretaker):

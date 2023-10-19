@@ -36,7 +36,7 @@ class Zoo:
     def get_all_animals(self) -> list[Animal]:
         """Return a list of all animals."""
         return self.animals
-    
+
     def get_animal_stats(self) -> dict:
         """Return some statistics about how many animals per species 
         exist."""
@@ -47,9 +47,7 @@ class Zoo:
                 species_count[species_name] += 1
             else:
                 species_count[species_name] = 1
-        
-        if not species_count:
-            return {'animals_per_species': None}
+
         return {'animals_per_species': species_count}
 
     def add_caretaker(self, caretaker: Caretaker) -> None:
@@ -90,21 +88,16 @@ class Zoo:
     def get_all_caretakers(self) -> list[Caretaker]:
         """Return a list of all caretakers."""
         return self.caretakers
-    
+
     def get_caretaker_stats(self) -> dict:
         """Return some basic statistics about the number of animals 
         under supervision of caretakers."""
-        animals_under_supervision = [len(caretaker.get_animals()) for caretaker in self.caretakers]
-        if not animals_under_supervision:
-            return {
-                'minimum_animals_under_supervision': None,
-                'maximum_animals_under_supervision': None,
-                'average_animals_under_supervision': None
-            }
+        animals_under_supervision = [
+            len(caretaker.get_animals()) for caretaker in self.caretakers]
         return {
-            'minimum_animals_under_supervision': min(animals_under_supervision),
-            'maximum_animals_under_supervision': max(animals_under_supervision),
-            'average_animals_under_supervision': sum(animals_under_supervision) / len(animals_under_supervision)
+            'minimum_animals_under_supervision': 0 if not animals_under_supervision else min(animals_under_supervision),
+            'maximum_animals_under_supervision': 0 if not animals_under_supervision else max(animals_under_supervision),
+            'average_animals_under_supervision': 0 if not animals_under_supervision else sum(animals_under_supervision) / len(animals_under_supervision)
         }
 
     def add_enclosure(self, enclosure: Enclosure) -> None:
@@ -149,3 +142,32 @@ class Zoo:
     def get_all_enclosures(self) -> list[Enclosure]:
         """Return a list of all enclosures."""
         return self.enclosures
+
+    def get_enclosure_stats(self) -> dict:
+        """Return some basic statistics about the number of animals 
+        living in enclosures, which enclosures contain multiple species 
+        and the available space per animal per enclosure."""
+        animals_in_enclosures = [len(enclosure.get_animals())
+                                 for enclosure in self.enclosures]
+
+        enclosures_with_multiple_species = {}
+        for enclosure in self.enclosures:
+            animal_species_names = {
+                animal.species_name for animal in enclosure.get_animals()}
+            if len(animal_species_names) > 1:
+                enclosures_with_multiple_species[enclosure] = len(
+                    animal_species_names)
+
+        available_space_per_animal_per_enclosure = {}
+        for enclosure in self.enclosures:
+            animals = len(enclosure.get_animals())
+            if animals == 0:
+                available_space_per_animal_per_enclosure[enclosure] = enclosure.area
+            else:
+                available_space_per_animal_per_enclosure[enclosure] = enclosure.area / animals
+
+        return {
+            'average_animals_per_enclosure': 0 if not animals_in_enclosures else sum(animals_in_enclosures) / len(animals_in_enclosures),
+            'enclosures_with_multiple_species': enclosures_with_multiple_species,
+            'available_space_per_animal_per_enclosure': available_space_per_animal_per_enclosure
+        }
