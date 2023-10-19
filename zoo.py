@@ -36,6 +36,21 @@ class Zoo:
     def get_all_animals(self) -> list[Animal]:
         """Return a list of all animals."""
         return self.animals
+    
+    def get_animal_stats(self) -> dict:
+        """Return some statistics about how many animals per species 
+        exist."""
+        species_count = {}
+        for animal in self.get_all_animals():
+            species_name = animal.species_name
+            if species_name in species_count:
+                species_count[species_name] += 1
+            else:
+                species_count[species_name] = 1
+        
+        if not species_count:
+            return {'animals_per_species': None}
+        return {'animals_per_species': species_count}
 
     def add_caretaker(self, caretaker: Caretaker) -> None:
         """Add a new caretaker to the zoo, but only if she/he does not 
@@ -86,12 +101,11 @@ class Zoo:
                 'maximum_animals_under_supervision': None,
                 'average_animals_under_supervision': None
             }
-        else:
-            return {
-                'minimum_animals_under_supervision': min(animals_under_supervision),
-                'maximum_animals_under_supervision': max(animals_under_supervision),
-                'average_animals_under_supervision': sum(animals_under_supervision) / len(animals_under_supervision)
-            }
+        return {
+            'minimum_animals_under_supervision': min(animals_under_supervision),
+            'maximum_animals_under_supervision': max(animals_under_supervision),
+            'average_animals_under_supervision': sum(animals_under_supervision) / len(animals_under_supervision)
+        }
 
     def add_enclosure(self, enclosure: Enclosure) -> None:
         """Add a new enclosure to the zoo, but only if it does not 

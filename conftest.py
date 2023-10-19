@@ -9,6 +9,7 @@ from zoo_objects import Animal, Caretaker, Enclosure
 # NOTE All fixtures in this file can be used by every test file without
 # importing anything.
 
+
 # ---- zoo fixtures ----
 
 
@@ -30,6 +31,11 @@ def animal2() -> Animal:
 @pytest.fixture
 def animal3() -> Animal:
     return Animal('Pan troglodytes', 'Chimpanzee', 36)
+
+
+@pytest.fixture
+def animal4() -> Animal:
+    return Animal('Pan troglodytes', 'Chimpanzee', 60)
 
 
 @pytest.fixture

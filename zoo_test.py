@@ -137,6 +137,35 @@ class TestZooAnimal:
         assert animal2 in zoo1.get_all_animals()
         assert animal3 in zoo1.get_all_animals()
 
+    def test_get_animal_stats_no_animals(self, zoo1: Zoo):
+        """Test getting all animal stats without any animals added
+        to the zoo so far."""
+        assert zoo1.get_animal_stats() == {
+            'animals_per_species': None
+        }
+
+    def test_get_animal_stats_one_animal(self, zoo1: Zoo, animal1: Animal):
+        """Test getting all animal stats with one animal added to the 
+        zoo."""
+        zoo1.add_animal(animal1)
+        assert zoo1.get_animal_stats() == {
+            'animals_per_species': {'Panthera tigris': 1}
+        }
+
+    def test_get_animal_stats_with_multiple_animals(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal, animal4: Animal):
+        """Test getting all animal stats with multiple animals added to 
+        the zoo."""
+        zoo1.add_animal(animal1)
+        zoo1.add_animal(animal2)
+        zoo1.add_animal(animal3)
+        zoo1.add_animal(animal4)
+
+        assert zoo1.get_animal_stats() == {
+            'animals_per_species': {'Panthera tigris': 1,
+                                    'Testudinata': 1,
+                                    'Pan troglodytes': 2}
+        }
+
 
 class TestZooCaretaker:
     def test_add_caretaker(self, zoo1: Zoo, caretaker1: Caretaker):
