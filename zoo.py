@@ -155,8 +155,7 @@ class Zoo:
             animal_species_names = {
                 animal.species_name for animal in enclosure.get_animals()}
             if len(animal_species_names) > 1:
-                enclosures_with_multiple_species[enclosure] = len(
-                    animal_species_names)
+                enclosures_with_multiple_species[enclosure] = animal_species_names
 
         available_space_per_animal_per_enclosure = {}
         for enclosure in self.enclosures:

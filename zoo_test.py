@@ -441,3 +441,43 @@ class TestZooEnclosure:
         assert enclosure1 in zoo1.get_all_enclosures()
         assert enclosure2 in zoo1.get_all_enclosures()
         assert enclosure3 in zoo1.get_all_enclosures()
+
+    def test_get_enclosure_stats_no_enclosures(self, zoo1: Zoo):
+        """Test getting all enclosure stats without any enclosures added
+        to the zoo so far."""
+        assert zoo1.get_enclosure_stats() == {
+            'average_animals_per_enclosure': 0,
+            'enclosures_with_multiple_species': {},
+            'available_space_per_animal_per_enclosure': {}
+        }
+
+    def test_get_enclosure_stats_no_animals(self, zoo1: Zoo, enclosure1: Enclosure):
+        """Test getting all enclosure stats with no animals added to any
+        enclosure."""
+        zoo1.add_enclosure(enclosure1)
+        assert zoo1.get_enclosure_stats() == {
+            'average_animals_per_enclosure': 0,
+            'enclosures_with_multiple_species': {},
+            'available_space_per_animal_per_enclosure': {enclosure1: enclosure1.area}
+        }
+
+    def test_get_enclosure_stats_with_animals(self, zoo1: Zoo, enclosure1: Enclosure, enclosure2: Enclosure, enclosure3: Enclosure,
+                                              animal1: Animal, animal2: Animal, animal3: Animal, animal4: Animal):
+        """Test getting all enclosure stats with animals added to 
+        enclosures."""
+        zoo1.add_enclosure(enclosure1)
+        zoo1.add_enclosure(enclosure2)
+        zoo1.add_enclosure(enclosure3)
+
+        enclosure1.add_animal(animal1)
+        enclosure2.add_animal(animal2)
+        enclosure2.add_animal(animal3)
+        enclosure2.add_animal(animal4)
+
+        assert zoo1.get_enclosure_stats() == {
+            'average_animals_per_enclosure': 4 / 3,
+            'enclosures_with_multiple_species': {enclosure2: {'Testudinata', 'Pan troglodytes'}},
+            'available_space_per_animal_per_enclosure': {enclosure1: enclosure1.area / 1,
+                                                         enclosure2: enclosure2.area / 3,
+                                                         enclosure3: enclosure3.area}
+        }
