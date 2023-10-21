@@ -1,3 +1,5 @@
+import datetime
+
 from zoo_objects import Animal, Caretaker, Enclosure
 
 
@@ -173,3 +175,37 @@ class Zoo:
             'enclosures_with_multiple_species': enclosures_with_multiple_species,
             'available_space_per_animal_per_enclosure': available_space_per_animal_per_enclosure
         }
+        
+    def generate_cleaning_plan(self) -> dict:
+        """Generate a cleaning plan for every enclosure."""
+        
+        def calculate_next_cleaning_date(enclosure: Enclosure) -> datetime.datetime:
+            """Calculate the next cleaning date."""
+            if not enclosure.cleaning_record:
+                next_date = datetime.datetime.now()
+            else:
+                next_date = enclosure.cleaning_record[-1] + datetime.timedelta(days=3)
+            return next_date
+            
+        def select_caretaker() -> str:
+            """Select a responsibl caretaker by just going through the 
+            list of available caretakers. If at the end start again from
+            the beginning."""
+            if self.caretakers:
+                nonlocal idx
+                selected_caretaker = self.caretakers[idx].id
+                idx = (idx + 1) % len(self.caretakers)
+            else:
+                selected_caretaker = ''
+            return selected_caretaker
+        
+        cleaning_plan = {}
+        idx = 0
+        for enclosure in self.enclosures:
+            cleaning_date = calculate_next_cleaning_date(enclosure)
+            selected_caretaker = select_caretaker()
+
+            cleaning_plan[enclosure.id] = {'date': cleaning_date, 'caretaker': selected_caretaker}
+
+        return cleaning_plan
+                    

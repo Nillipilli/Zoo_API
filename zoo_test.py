@@ -1,4 +1,5 @@
 import pytest
+import datetime
 
 from zoo import Zoo
 from zoo_objects import Animal, Caretaker, Enclosure
@@ -481,3 +482,46 @@ class TestZooEnclosure:
                                                          enclosure2.id: enclosure2.area / 3,
                                                          enclosure3.id: enclosure3.area}
         }
+
+    def test_generate_cleaning_plan_no_enclosures(self, zoo1: Zoo):
+        """Test generating a cleaning plan when no enclosures exist."""
+        cleaning_plan = zoo1.generate_cleaning_plan()
+        assert cleaning_plan == {}
+
+    def test_generate_cleaning_plan_no_records_no_caretaker(self, zoo1: Zoo, enclosure1: Enclosure):
+        """Test generating a cleaning plan when no previous cleaning 
+        records and no caretakers exist."""
+        zoo1.add_enclosure(enclosure1)
+        cleaning_plan = zoo1.generate_cleaning_plan()
+        assert cleaning_plan == {enclosure1.id: {
+            'date': datetime.datetime.now(), 'caretaker': ''}}
+
+    def test_generate_cleaning_plan_no_records(self, zoo1: Zoo, enclosure1: Enclosure, caretaker1: Caretaker):
+        """Test generating a cleaning plan when no previous cleaning
+        records but some caretakers exist."""
+        zoo1.add_enclosure(enclosure1)
+        zoo1.add_caretaker(caretaker1)
+        cleaning_plan = zoo1.generate_cleaning_plan()
+        assert cleaning_plan == {enclosure1.id: {
+            'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
+
+    def test_generate_cleaning_plan_with_records(self, zoo1: Zoo, enclosure1: Enclosure, enclosure2: Enclosure, enclosure3: Enclosure,
+                                                 caretaker1: Caretaker, caretaker2: Caretaker):
+        """Test generating a cleaning plan with multiple enclosures, 
+        caretakers and previous cleaning records."""
+        zoo1.add_enclosure(enclosure1)
+        zoo1.add_enclosure(enclosure2)
+        zoo1.add_enclosure(enclosure3)
+
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+
+        enclosure1.clean()
+        enclosure1.clean()
+        enclosure1.clean()
+        enclosure2.clean()
+
+        cleaning_plan = zoo1.generate_cleaning_plan()
+        assert cleaning_plan == {enclosure1.id: {'date': enclosure1.cleaning_record[-1] + datetime.timedelta(days=3), 'caretaker': caretaker1.id},
+                                 enclosure2.id: {'date': enclosure2.cleaning_record[-1] + datetime.timedelta(days=3), 'caretaker': caretaker2.id},
+                                 enclosure3.id: {'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
