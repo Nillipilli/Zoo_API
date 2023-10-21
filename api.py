@@ -159,8 +159,8 @@ class DeathAnimal(Resource):
 
         my_zoo.remove_animal(targeted_animal)
         return jsonify(f'Animal with ID {animal_id} has died')
-    
-    
+
+
 @api.route('/animal/stats')
 class AnimalStats(Resource):
     def get(self):
@@ -229,6 +229,13 @@ class AllAnimalsInEnclosure(Resource):
             return jsonify(f'Enclosure with ID {enclosure_id} has not been found')
         animals = targeted_enclosure.get_animals()
         return jsonify(animals)
+
+
+@api.route('/enclosure/stats')
+class EnclosureStats(Resource):
+    def get(self):
+        stats = my_zoo.get_enclosure_stats()
+        return jsonify(stats)
 
 
 # ---- Caretaker API calls ----

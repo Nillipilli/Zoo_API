@@ -675,38 +675,39 @@ class TestZooAnimal:
         assert len(animals) == 0
         assert len(enclosures) == 0
         assert len(caretakers) == 0
-        
+
     def test_get_animal_stats_no_animals(self, base_url):
         """Test getting all animal stats without any animals in the 
         zoo."""
         stats = json.loads(requests.get(base_url + '/animal/stats').content)
         assert stats == {'animals_per_species': {}}
-        
+
     def test_get_animal_stats_one_animal(self, base_url, post_animal1):
         """Test getting all animal stats with one animal added to the 
         zoo."""
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 1
-        
+
         stats = json.loads(requests.get(base_url + '/animal/stats').content)
-        assert stats == {'animals_per_species': {post_animal1['species_name']: 1}}
-        
+        assert stats == {'animals_per_species': {
+            post_animal1['species_name']: 1}}
+
         # Cleanup
         requests.delete(base_url + f'/animal/{post_animal1["id"]}')
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
-        
+
     def test_get_animal_stats_with_multiple_animals(self, base_url, post_animal1, post_animal2, post_animal3, post_animal4):
         """Test getting all animal stats with multiple animals added to 
         the zoo."""
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 4
-        
+
         stats = json.loads(requests.get(base_url + '/animal/stats').content)
         assert stats == {'animals_per_species': {post_animal1['species_name']: 1,
                                                  post_animal2['species_name']: 1,
                                                  post_animal3['species_name']: 2}}
-        
+
         # Cleanup
         requests.delete(base_url + f'/animal/{post_animal1["id"]}')
         requests.delete(base_url + f'/animal/{post_animal2["id"]}')
@@ -714,8 +715,8 @@ class TestZooAnimal:
         requests.delete(base_url + f'/animal/{post_animal4["id"]}')
         animals = json.loads(requests.get(base_url + '/animals').content)
         assert len(animals) == 0
-        
-         
+
+
 class TestZooEnclosure:
     def test_add_enclosure(self, base_url, post_enclosure1):
         """Test adding a single enclosure to the zoo."""
@@ -1034,6 +1035,76 @@ class TestZooEnclosure:
         message = json.loads(requests.get(
             base_url + f'/enclosure/{unknown_id}/animals').content)
         assert message == f'Enclosure with ID {unknown_id} has not been found'
+
+    def test_get_enclosure_stats_no_enclosures(self, base_url):
+        """Test getting all enclosure stats without any enclosures in 
+        the zoo."""
+        stats = json.loads(requests.get(base_url + '/enclosure/stats').content)
+        assert stats == {'average_animals_per_enclosure': 0,
+                         'enclosures_with_multiple_species': {},
+                         'available_space_per_animal_per_enclosure': {}}
+
+    def test_get_enclosure_stats_no_animals(self, base_url, post_enclosure1):
+        """Test getting all enclosure stats with one enclosure added to 
+        the zoo but no animals."""
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 1
+
+        stats = json.loads(requests.get(base_url + '/enclosure/stats').content)
+        assert stats == {'average_animals_per_enclosure': 0,
+                         'enclosures_with_multiple_species': {},
+                         'available_space_per_animal_per_enclosure': {post_enclosure1["id"]: post_enclosure1["area"]}}
+
+        # Cleanup
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(enclosures) == 0
+
+    def test_get_enclosure_stats_with_multiple_animals(self, base_url, post_enclosure1, post_enclosure2, post_enclosure3,
+                                                       post_animal1, post_animal2, post_animal3, post_animal4):
+        """Test getting all enclosure stats with multiple animals added
+        to the zoo."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(animals) == 4
+        assert len(enclosures) == 3
+        
+        data1 = {'animal_id': post_animal1["id"],
+                'enclosure_id': post_enclosure1["id"]}
+        data2 = {'animal_id': post_animal2["id"],
+                'enclosure_id': post_enclosure2["id"]}
+        data3 = {'animal_id': post_animal3["id"],
+                'enclosure_id': post_enclosure2["id"]}
+        data4 = {'animal_id': post_animal4["id"],
+                'enclosure_id': post_enclosure2["id"]}
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/home', data1)
+        requests.post(base_url + f'/animal/{post_animal2["id"]}/home', data2)
+        requests.post(base_url + f'/animal/{post_animal3["id"]}/home', data3)
+        requests.post(base_url + f'/animal/{post_animal4["id"]}/home', data4)
+
+        stats = json.loads(requests.get(base_url + '/enclosure/stats').content)
+        assert stats == {
+            'average_animals_per_enclosure': 4 / 3,
+            'enclosures_with_multiple_species': {post_enclosure2['id']: ['Testudinata', 'Pan troglodytes']},
+            'available_space_per_animal_per_enclosure': {post_enclosure1['id']: post_enclosure1['area'] / 1,
+                                                         post_enclosure2['id']: post_enclosure2['area'] / 3,
+                                                         post_enclosure3['id']: post_enclosure3['area']}
+        }
+
+        # Cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal2["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal3["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal4["id"]}')
+        
+        requests.delete(base_url + f'/enclosure/{post_enclosure1["id"]}')
+        requests.delete(base_url + f'/enclosure/{post_enclosure2["id"]}')
+        requests.delete(base_url + f'/enclosure/{post_enclosure3["id"]}')
+        
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        enclosures = json.loads(requests.get(base_url + '/enclosures').content)
+        assert len(animals) == 0
+        assert len(enclosures) == 0
 
 
 class TestZooCaretaker:
