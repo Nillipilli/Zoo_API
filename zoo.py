@@ -146,7 +146,10 @@ class Zoo:
     def get_enclosure_stats(self) -> dict:
         """Return some basic statistics about the number of animals 
         living in enclosures, which enclosures contain multiple species 
-        and the available space per animal per enclosure."""
+        and the available space per animal per enclosure.
+
+        Use enclosure ID as key as I could not manage to encode the 
+        dictionary otherwise."""
         animals_in_enclosures = [len(enclosure.get_animals())
                                  for enclosure in self.enclosures]
 
@@ -155,15 +158,15 @@ class Zoo:
             animal_species_names = {
                 animal.species_name for animal in enclosure.get_animals()}
             if len(animal_species_names) > 1:
-                enclosures_with_multiple_species[enclosure] = animal_species_names
+                enclosures_with_multiple_species[enclosure.id] = animal_species_names
 
         available_space_per_animal_per_enclosure = {}
         for enclosure in self.enclosures:
             animals = len(enclosure.get_animals())
             if animals == 0:
-                available_space_per_animal_per_enclosure[enclosure] = enclosure.area
+                available_space_per_animal_per_enclosure[enclosure.id] = enclosure.area
             else:
-                available_space_per_animal_per_enclosure[enclosure] = enclosure.area / animals
+                available_space_per_animal_per_enclosure[enclosure.id] = enclosure.area / animals
 
         return {
             'average_animals_per_enclosure': 0 if not animals_in_enclosures else sum(animals_in_enclosures) / len(animals_in_enclosures),

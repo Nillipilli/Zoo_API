@@ -458,7 +458,7 @@ class TestZooEnclosure:
         assert zoo1.get_enclosure_stats() == {
             'average_animals_per_enclosure': 0,
             'enclosures_with_multiple_species': {},
-            'available_space_per_animal_per_enclosure': {enclosure1: enclosure1.area}
+            'available_space_per_animal_per_enclosure': {enclosure1.id: enclosure1.area}
         }
 
     def test_get_enclosure_stats_with_animals(self, zoo1: Zoo, enclosure1: Enclosure, enclosure2: Enclosure, enclosure3: Enclosure,
@@ -476,8 +476,8 @@ class TestZooEnclosure:
 
         assert zoo1.get_enclosure_stats() == {
             'average_animals_per_enclosure': 4 / 3,
-            'enclosures_with_multiple_species': {enclosure2: {'Testudinata', 'Pan troglodytes'}},
-            'available_space_per_animal_per_enclosure': {enclosure1: enclosure1.area / 1,
-                                                         enclosure2: enclosure2.area / 3,
-                                                         enclosure3: enclosure3.area}
+            'enclosures_with_multiple_species': {enclosure2.id: {'Testudinata', 'Pan troglodytes'}},
+            'available_space_per_animal_per_enclosure': {enclosure1.id: enclosure1.area / 1,
+                                                         enclosure2.id: enclosure2.area / 3,
+                                                         enclosure3.id: enclosure3.area}
         }
