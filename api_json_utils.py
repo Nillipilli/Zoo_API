@@ -22,16 +22,10 @@ class ZooJsonEncoder(JSONEncoder):
             # handle date separately (includes datetime)
             if isinstance(obj, date):
                 return obj.isoformat()
-            
+
             # handle Animal, Caretaker and Enclosure separately;
             # to handle circular references
-            elif isinstance(obj, Animal):
-                return obj.to_json()
-            
-            elif isinstance(obj, Caretaker):
-                return obj.to_json()
-            
-            elif isinstance(obj, Enclosure):
+            elif isinstance(obj, (Animal, Caretaker, Enclosure)):
                 return obj.to_json()
 
             # check if object is iterable
