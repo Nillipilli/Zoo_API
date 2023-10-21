@@ -111,6 +111,14 @@ def post_animal3(base_url: str, animal3: Animal) -> dict:
 
 
 @pytest.fixture
+def post_animal4(base_url: str, animal4: Animal) -> dict:
+    animal4_data = {'species_name': animal4.species_name,
+                    'common_name': animal4.common_name,
+                    'age': animal4.age}
+    return json.loads(requests.post(base_url + '/animal', data=animal4_data).content)
+
+
+@pytest.fixture
 def post_enclosure1(base_url: str, enclosure1: Enclosure) -> dict:
     enclosure1_data = {'name': enclosure1.name,
                        'area': enclosure1.area}

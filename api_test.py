@@ -675,8 +675,47 @@ class TestZooAnimal:
         assert len(animals) == 0
         assert len(enclosures) == 0
         assert len(caretakers) == 0
-
-
+        
+    def test_get_animal_stats_no_animals(self, base_url):
+        """Test getting all animal stats without any animals in the 
+        zoo."""
+        stats = json.loads(requests.get(base_url + '/animal/stats').content)
+        assert stats == {'animals_per_species': {}}
+        
+    def test_get_animal_stats_one_animal(self, base_url, post_animal1):
+        """Test getting all animal stats with one animal added to the 
+        zoo."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 1
+        
+        stats = json.loads(requests.get(base_url + '/animal/stats').content)
+        assert stats == {'animals_per_species': {post_animal1['species_name']: 1}}
+        
+        # Cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+        
+    def test_get_animal_stats_with_multiple_animals(self, base_url, post_animal1, post_animal2, post_animal3, post_animal4):
+        """Test getting all animal stats with multiple animals added to 
+        the zoo."""
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 4
+        
+        stats = json.loads(requests.get(base_url + '/animal/stats').content)
+        assert stats == {'animals_per_species': {post_animal1['species_name']: 1,
+                                                 post_animal2['species_name']: 1,
+                                                 post_animal3['species_name']: 2}}
+        
+        # Cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal2["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal3["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal4["id"]}')
+        animals = json.loads(requests.get(base_url + '/animals').content)
+        assert len(animals) == 0
+        
+         
 class TestZooEnclosure:
     def test_add_enclosure(self, base_url, post_enclosure1):
         """Test adding a single enclosure to the zoo."""
