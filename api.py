@@ -236,6 +236,13 @@ class EnclosureStats(Resource):
     def get(self):
         stats = my_zoo.get_enclosure_stats()
         return jsonify(stats)
+    
+    
+@api.route('/tasks/cleaning')
+class EnclosureCleaningPlan(Resource):
+    def get(self):
+        cleaning_plan = my_zoo.generate_cleaning_plan()
+        return jsonify(cleaning_plan)
 
 
 # ---- Caretaker API calls ----
