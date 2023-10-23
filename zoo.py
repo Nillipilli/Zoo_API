@@ -178,35 +178,34 @@ class Zoo:
 
     def generate_cleaning_plan(self) -> dict:
         """Generate a cleaning plan for every enclosure."""
-
-        def calculate_next_cleaning_date(enclosure: Enclosure) -> datetime.datetime:
-            """Calculate the next cleaning date."""
-            if not enclosure.cleaning_record:
-                next_date = datetime.datetime.now()
-            else:
-                next_date = enclosure.cleaning_record[-1] + \
-                    datetime.timedelta(days=3)
-            return next_date
-
-        def select_caretaker() -> str:
-            """Select a responsibl caretaker by just going through the 
-            list of available caretakers. If at the end start again from
-            the beginning."""
-            if self.caretakers:
-                nonlocal idx
-                selected_caretaker = self.caretakers[idx].id
-                idx = (idx + 1) % len(self.caretakers)
-            else:
-                selected_caretaker = ''
-            return selected_caretaker
-
         cleaning_plan = {}
         idx = 0
         for enclosure in self.enclosures:
-            cleaning_date = calculate_next_cleaning_date(enclosure)
-            selected_caretaker = select_caretaker()
+            cleaning_date = self._calculate_next_date(enclosure, 3)
+            selected_caretaker, idx = self._select_caretaker(idx)
 
             cleaning_plan[enclosure.id] = {
                 'date': cleaning_date, 'caretaker': selected_caretaker}
 
         return cleaning_plan
+
+    def _calculate_next_date(self, object: Enclosure, days: int) -> datetime.datetime:
+        """Calculate the next cleaning/feeding or medical checkup 
+        date."""
+        if not object.cleaning_record:
+            next_date = datetime.datetime.now()
+        else:
+            next_date = object.cleaning_record[-1] + \
+                datetime.timedelta(days=days)
+        return next_date
+
+    def _select_caretaker(self, idx: int) -> tuple[str, int]:
+        """Select a responsibl caretaker by just going through the 
+        list of available caretakers. If at the end start again from
+        the beginning."""
+        if self.caretakers:
+            selected_caretaker = self.caretakers[idx].id
+            idx = (idx + 1) % len(self.caretakers)
+        else:
+            selected_caretaker = ''
+        return selected_caretaker, idx
