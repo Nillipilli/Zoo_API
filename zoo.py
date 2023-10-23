@@ -203,6 +203,19 @@ class Zoo:
 
         return feeding_plan
 
+    def generate_medical_plan(self) -> dict:
+        """Generate a medical checkup plan for every animal."""
+        medical_plan = {}
+        idx = 0
+        for animal in self.animals:
+            medical_date = self._calculate_next_date(animal.medical_record, 35)
+            selected_caretaker, idx = self._select_caretaker(idx)
+
+            medical_plan[animal.id] = {
+                'date': medical_date, 'caretaker': selected_caretaker}
+
+        return medical_plan
+
     def _calculate_next_date(self, records: list[datetime.datetime], days: int) -> datetime.datetime:
         """Calculate the next cleaning/feeding or medical checkup 
         date based on the last records."""
