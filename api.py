@@ -168,6 +168,13 @@ class AnimalStats(Resource):
         return jsonify(stats)
 
 
+@api.route('/tasks/feeding')
+class AnimalFeedingPlan(Resource):
+    def get(self):
+        feeding_plan = my_zoo.generate_feeding_plan()
+        return jsonify(feeding_plan)
+
+
 # ---- Enclosure API calls ----
 
 
@@ -236,8 +243,8 @@ class EnclosureStats(Resource):
     def get(self):
         stats = my_zoo.get_enclosure_stats()
         return jsonify(stats)
-    
-    
+
+
 @api.route('/tasks/cleaning')
 class EnclosureCleaningPlan(Resource):
     def get(self):
