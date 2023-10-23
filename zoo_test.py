@@ -167,6 +167,64 @@ class TestZooAnimal:
                                     'Pan troglodytes': 2}
         }
 
+    def test_generate_feeding_plan_no_animals(self, zoo1: Zoo):
+        """Test generating a feeding plan when no animals exist."""
+        feeding_plan = zoo1.generate_feeding_plan()
+        assert feeding_plan == {}
+
+    def test_generate_feeding_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
+        """Test generating a feeding plan when no previous feeding 
+        records and no caretakers exist."""
+        zoo1.add_animal(animal1)
+        feeding_plan = zoo1.generate_feeding_plan()
+        date1 = feeding_plan[animal1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert feeding_plan[animal1.id]['caretaker'] == ''
+
+    def test_generate_feeding_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
+        """Test generating a feeding plan when no previous feeding
+        records but some caretakers exist."""
+        zoo1.add_animal(animal1)
+        zoo1.add_caretaker(caretaker1)
+        feeding_plan = zoo1.generate_feeding_plan()
+        date1 = feeding_plan[animal1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert feeding_plan[animal1.id]['caretaker'] == caretaker1.id
+
+    def test_generate_feeding_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
+                                                caretaker1: Caretaker, caretaker2: Caretaker):
+        """Test generating a feeding plan with multiple animals, 
+        caretakers and previous cleaning records."""
+        zoo1.add_animal(animal1)
+        zoo1.add_animal(animal2)
+        zoo1.add_animal(animal3)
+
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+
+        animal1.feed()
+        animal1.feed()
+        animal1.feed()
+        animal2.feed()
+
+        feeding_plan = zoo1.generate_feeding_plan()
+        date1 = feeding_plan[animal1.id]['date']
+        date2 = feeding_plan[animal2.id]['date']
+        date3 = feeding_plan[animal3.id]['date']
+
+        # use this to make test more reliable to pass by setting total
+        # second difference to smaller than 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=2)) - date1).total_seconds()) < 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=2)) - date2).total_seconds()) < 5
+        assert abs((datetime.datetime.now() - date3).total_seconds()) < 5
+        assert feeding_plan[animal1.id]['caretaker'] == caretaker1.id
+        assert feeding_plan[animal2.id]['caretaker'] == caretaker2.id
+        assert feeding_plan[animal3.id]['caretaker'] == caretaker1.id
+
 
 class TestZooCaretaker:
     def test_add_caretaker(self, zoo1: Zoo, caretaker1: Caretaker):
@@ -493,8 +551,10 @@ class TestZooEnclosure:
         records and no caretakers exist."""
         zoo1.add_enclosure(enclosure1)
         cleaning_plan = zoo1.generate_cleaning_plan()
-        assert cleaning_plan == {enclosure1.id: {
-            'date': datetime.datetime.now(), 'caretaker': ''}}
+        date1 = cleaning_plan[enclosure1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert cleaning_plan[enclosure1.id]['caretaker'] == ''
 
     def test_generate_cleaning_plan_no_records(self, zoo1: Zoo, enclosure1: Enclosure, caretaker1: Caretaker):
         """Test generating a cleaning plan when no previous cleaning
@@ -502,8 +562,10 @@ class TestZooEnclosure:
         zoo1.add_enclosure(enclosure1)
         zoo1.add_caretaker(caretaker1)
         cleaning_plan = zoo1.generate_cleaning_plan()
-        assert cleaning_plan == {enclosure1.id: {
-            'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
+        date1 = cleaning_plan[enclosure1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert cleaning_plan[enclosure1.id]['caretaker'] == caretaker1.id
 
     def test_generate_cleaning_plan_with_records(self, zoo1: Zoo, enclosure1: Enclosure, enclosure2: Enclosure, enclosure3: Enclosure,
                                                  caretaker1: Caretaker, caretaker2: Caretaker):
@@ -522,49 +584,17 @@ class TestZooEnclosure:
         enclosure2.clean()
 
         cleaning_plan = zoo1.generate_cleaning_plan()
-        assert cleaning_plan == {enclosure1.id: {'date': enclosure1.cleaning_record[-1] + datetime.timedelta(days=3), 'caretaker': caretaker1.id},
-                                 enclosure2.id: {'date': enclosure2.cleaning_record[-1] + datetime.timedelta(days=3), 'caretaker': caretaker2.id},
-                                 enclosure3.id: {'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
-        
-    def test_generate_feeding_plan_no_animals(self, zoo1: Zoo):
-        """Test generating a feeding plan when no animals exist."""
-        feeding_plan = zoo1.generate_feeding_plan()
-        assert feeding_plan == {}
+        date1 = cleaning_plan[enclosure1.id]['date']
+        date2 = cleaning_plan[enclosure2.id]['date']
+        date3 = cleaning_plan[enclosure3.id]['date']
 
-    def test_generate_feeding_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
-        """Test generating a feeding plan when no previous feeding 
-        records and no caretakers exist."""
-        zoo1.add_animal(animal1)
-        feeding_plan = zoo1.generate_feeding_plan()
-        assert feeding_plan == {animal1.id: {
-            'date': datetime.datetime.now(), 'caretaker': ''}}
-
-    def test_generate_feeding_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
-        """Test generating a feeding plan when no previous feeding
-        records but some caretakers exist."""
-        zoo1.add_animal(animal1)
-        zoo1.add_caretaker(caretaker1)
-        feeding_plan = zoo1.generate_feeding_plan()
-        assert feeding_plan == {animal1.id: {
-            'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
-
-    def test_generate_feeding_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
-                                                 caretaker1: Caretaker, caretaker2: Caretaker):
-        """Test generating a feeding plan with multiple animals, 
-        caretakers and previous cleaning records."""
-        zoo1.add_animal(animal1)
-        zoo1.add_animal(animal2)
-        zoo1.add_animal(animal3)
-
-        zoo1.add_caretaker(caretaker1)
-        zoo1.add_caretaker(caretaker2)
-
-        animal1.feed()
-        animal1.feed()
-        animal1.feed()
-        animal2.feed()
-
-        feeding_plan = zoo1.generate_feeding_plan()
-        assert feeding_plan == {animal1.id: {'date': animal1.feeding_record[-1] + datetime.timedelta(days=2), 'caretaker': caretaker1.id},
-                                 animal2.id: {'date': animal2.feeding_record[-1] + datetime.timedelta(days=2), 'caretaker': caretaker2.id},
-                                 animal3.id: {'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
+        # use this to make test more reliable to pass by setting total
+        # second difference to smaller than 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=3)) - date1).total_seconds()) < 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=3)) - date2).total_seconds()) < 5
+        assert abs((datetime.datetime.now() - date3).total_seconds()) < 5
+        assert cleaning_plan[enclosure1.id]['caretaker'] == caretaker1.id
+        assert cleaning_plan[enclosure2.id]['caretaker'] == caretaker2.id
+        assert cleaning_plan[enclosure3.id]['caretaker'] == caretaker1.id
