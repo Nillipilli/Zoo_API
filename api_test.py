@@ -801,6 +801,90 @@ class TestZooAnimal:
         requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
         requests.delete(base_url + f'/caretaker/{post_caretaker2["id"]}')
 
+    def test_generate_medical_plan_no_animals(self, base_url):
+        """Test generating a medical plan without any animals added
+        to the zoo so far."""
+        medical_plan = json.loads(requests.get(
+            base_url + '/tasks/medical').content)
+        assert medical_plan == {}
+
+    def test_generate_medical_plan_no_records_no_caretaker(self, base_url, post_animal1):
+        """Test generating a medical plan without previous medical 
+        records and no caretakers."""
+        medical_plan = json.loads(requests.get(
+            base_url + '/tasks/medical').content)
+
+        # need to use special treatment because for API
+        # datetime.datetime object gets converted to iso format
+        iso_formatted_date = medical_plan[post_animal1['id']]['date']
+        api_date = datetime.datetime.fromisoformat(iso_formatted_date)
+
+        assert abs((datetime.datetime.now() - api_date).total_seconds()) < 5
+        assert medical_plan[post_animal1['id']]['caretaker'] == ''
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+
+    def test_generate_medical_plan_no_records(self, base_url, post_animal1, post_caretaker1):
+        """Test generating a medical plan when no previous medical 
+        records but some caretakers exists."""
+        medical_plan = json.loads(requests.get(
+            base_url + '/tasks/medical').content)
+
+        # need to use special treatment because for API
+        # datetime.datetime object gets converted to iso format
+        iso_formatted_date = medical_plan[post_animal1['id']]['date']
+        api_date = datetime.datetime.fromisoformat(iso_formatted_date)
+
+        assert abs((datetime.datetime.now() - api_date).total_seconds()) < 5
+        assert medical_plan[post_animal1['id']
+                            ]['caretaker'] == post_caretaker1['id']
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+
+    def test_generate_medical_plan_with_records(self, base_url, post_animal1, post_animal2, post_animal3,
+                                                post_caretaker1, post_caretaker2):
+        """Test generating a medical plan with multiple animals, 
+        caretakers and previous medical records."""
+
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/vet')
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/vet')
+        requests.post(base_url + f'/animal/{post_animal1["id"]}/vet')
+        requests.post(base_url + f'/animal/{post_animal2["id"]}/vet')
+
+        medical_plan = json.loads(requests.get(
+            base_url + '/tasks/medical').content)
+
+        # need to use special treatment because for API
+        # datetime.datetime object gets converted to iso format
+        iso_formatted_date1 = medical_plan[post_animal1['id']]['date']
+        iso_formatted_date2 = medical_plan[post_animal2['id']]['date']
+        iso_formatted_date3 = medical_plan[post_animal3['id']]['date']
+        api_date1 = datetime.datetime.fromisoformat(iso_formatted_date1)
+        api_date2 = datetime.datetime.fromisoformat(iso_formatted_date2)
+        api_date3 = datetime.datetime.fromisoformat(iso_formatted_date3)
+
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=35)) - api_date1).total_seconds()) < 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=35)) - api_date2).total_seconds()) < 5
+        assert abs((datetime.datetime.now() - api_date3).total_seconds()) < 5
+        assert medical_plan[post_animal1['id']
+                            ]['caretaker'] == post_caretaker1['id']
+        assert medical_plan[post_animal2['id']
+                            ]['caretaker'] == post_caretaker2['id']
+        assert medical_plan[post_animal3['id']
+                            ]['caretaker'] == post_caretaker1['id']
+
+        # cleanup
+        requests.delete(base_url + f'/animal/{post_animal1["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal2["id"]}')
+        requests.delete(base_url + f'/animal/{post_animal3["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker1["id"]}')
+        requests.delete(base_url + f'/caretaker/{post_caretaker2["id"]}')
+
 
 class TestZooEnclosure:
     def test_add_enclosure(self, base_url, post_enclosure1):

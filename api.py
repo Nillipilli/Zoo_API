@@ -175,6 +175,13 @@ class AnimalFeedingPlan(Resource):
         return jsonify(feeding_plan)
 
 
+@api.route('/tasks/medical')
+class AnimalMedicalPlan(Resource):
+    def get(self):
+        medical_plan = my_zoo.generate_medical_plan()
+        return jsonify(medical_plan)
+
+
 # ---- Enclosure API calls ----
 
 
