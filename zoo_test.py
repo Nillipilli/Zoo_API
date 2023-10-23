@@ -525,3 +525,46 @@ class TestZooEnclosure:
         assert cleaning_plan == {enclosure1.id: {'date': enclosure1.cleaning_record[-1] + datetime.timedelta(days=3), 'caretaker': caretaker1.id},
                                  enclosure2.id: {'date': enclosure2.cleaning_record[-1] + datetime.timedelta(days=3), 'caretaker': caretaker2.id},
                                  enclosure3.id: {'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
+        
+    def test_generate_feeding_plan_no_animals(self, zoo1: Zoo):
+        """Test generating a feeding plan when no animals exist."""
+        feeding_plan = zoo1.generate_feeding_plan()
+        assert feeding_plan == {}
+
+    def test_generate_feeding_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
+        """Test generating a feeding plan when no previous feeding 
+        records and no caretakers exist."""
+        zoo1.add_animal(animal1)
+        feeding_plan = zoo1.generate_feeding_plan()
+        assert feeding_plan == {animal1.id: {
+            'date': datetime.datetime.now(), 'caretaker': ''}}
+
+    def test_generate_feeding_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
+        """Test generating a feeding plan when no previous feeding
+        records but some caretakers exist."""
+        zoo1.add_animal(animal1)
+        zoo1.add_caretaker(caretaker1)
+        feeding_plan = zoo1.generate_feeding_plan()
+        assert feeding_plan == {animal1.id: {
+            'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}
+
+    def test_generate_feeding_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
+                                                 caretaker1: Caretaker, caretaker2: Caretaker):
+        """Test generating a feeding plan with multiple animals, 
+        caretakers and previous cleaning records."""
+        zoo1.add_animal(animal1)
+        zoo1.add_animal(animal2)
+        zoo1.add_animal(animal3)
+
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+
+        animal1.feed()
+        animal1.feed()
+        animal1.feed()
+        animal2.feed()
+
+        feeding_plan = zoo1.generate_feeding_plan()
+        assert feeding_plan == {animal1.id: {'date': animal1.feeding_record[-1] + datetime.timedelta(days=2), 'caretaker': caretaker1.id},
+                                 animal2.id: {'date': animal2.feeding_record[-1] + datetime.timedelta(days=2), 'caretaker': caretaker2.id},
+                                 animal3.id: {'date': datetime.datetime.now(), 'caretaker': caretaker1.id}}

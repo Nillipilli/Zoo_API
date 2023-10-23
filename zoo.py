@@ -181,7 +181,8 @@ class Zoo:
         cleaning_plan = {}
         idx = 0
         for enclosure in self.enclosures:
-            cleaning_date = self._calculate_next_date(enclosure, 3)
+            cleaning_date = self._calculate_next_date(
+                enclosure.cleaning_record, 3)
             selected_caretaker, idx = self._select_caretaker(idx)
 
             cleaning_plan[enclosure.id] = {
@@ -189,14 +190,26 @@ class Zoo:
 
         return cleaning_plan
 
-    def _calculate_next_date(self, object: Enclosure, days: int) -> datetime.datetime:
+    def generate_feeding_plan(self) -> dict:
+        """Generate a feeding plan for every animal."""
+        feeding_plan = {}
+        idx = 0
+        for animal in self.animals:
+            feeding_date = self._calculate_next_date(animal.feeding_record, 2)
+            selected_caretaker, idx = self._select_caretaker(idx)
+
+            feeding_plan[animal.id] = {
+                'date': feeding_date, 'caretaker': selected_caretaker}
+
+        return feeding_plan
+
+    def _calculate_next_date(self, records: list[datetime.datetime], days: int) -> datetime.datetime:
         """Calculate the next cleaning/feeding or medical checkup 
-        date."""
-        if not object.cleaning_record:
+        date based on the last records."""
+        if not records:
             next_date = datetime.datetime.now()
         else:
-            next_date = object.cleaning_record[-1] + \
-                datetime.timedelta(days=days)
+            next_date = records[-1] + datetime.timedelta(days=days)
         return next_date
 
     def _select_caretaker(self, idx: int) -> tuple[str, int]:
