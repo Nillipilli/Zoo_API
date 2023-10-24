@@ -6,7 +6,8 @@ from flask.json.provider import JSONProvider
 from zoo_objects import Animal, Caretaker, Enclosure
 
 
-# had to add this class using this post: https://shorturl.at/qEJZ6
+# had to add this class using this post: 
+# https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
 class CustomJSONProvider(JSONProvider):
 
     def dumps(self, obj, **kwargs):
@@ -32,6 +33,8 @@ class ZooJsonEncoder(JSONEncoder):
             iterable = iter(obj)
         except TypeError:
             pass
+
+        # gets executed when no exception occured
         else:
             # when object is not iterable
             return list(iterable)

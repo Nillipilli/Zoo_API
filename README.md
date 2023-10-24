@@ -23,3 +23,20 @@ class.
 There exists a test file for this class:
 
 - zoo.py
+
+### api.py
+
+This file is the heart of the project, as it contains all the API calls.
+For defining how objects like Animal, Caretaker, Enclosure and so on
+should be encode the following file is used:
+
+- api_json_utils.py
+
+There exists a test file for all the API calls:
+
+- api_test.py
+
+#### conftest.py
+
+This file contains all the pytest fixtures that can be used by all the
+test cases without the need of importing them
