@@ -5,7 +5,7 @@ from zoo import Zoo
 from zoo_objects import Animal, Caretaker, Enclosure
 
 
-class TestZooAnimal:
+class TestZooAnimalMethods:
     def test_add_animal(self, zoo1: Zoo, animal1: Animal):
         """Test adding a single animal."""
         zoo1.add_animal(animal1)
@@ -124,11 +124,11 @@ class TestZooAnimal:
         assert zoo1.get_animal(unknown_id) is None
 
     def test_get_all_animals_empty(self, zoo1: Zoo):
-        """Test getting all animal information without animals."""
+        """Test getting all animals without any animals in the zoo."""
         assert len(zoo1.get_all_animals()) == 0
 
     def test_get_all_animals(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal):
-        """Test getting all information about the existing animals."""
+        """Test getting all animals with some animals in the zoo."""
         zoo1.add_animal(animal1)
         zoo1.add_animal(animal2)
         zoo1.add_animal(animal3)
@@ -139,23 +139,22 @@ class TestZooAnimal:
         assert animal3 in zoo1.get_all_animals()
 
     def test_get_animal_stats_no_animals(self, zoo1: Zoo):
-        """Test getting all animal stats without any animals added
-        to the zoo so far."""
+        """Test getting all animal stats without any animals in the 
+        zoo."""
         assert zoo1.get_animal_stats() == {
             'animals_per_species': {}
         }
 
     def test_get_animal_stats_one_animal(self, zoo1: Zoo, animal1: Animal):
-        """Test getting all animal stats with one animal added to the 
-        zoo."""
+        """Test getting all animal stats with one animal in the zoo."""
         zoo1.add_animal(animal1)
         assert zoo1.get_animal_stats() == {
             'animals_per_species': {'Panthera tigris': 1}
         }
 
     def test_get_animal_stats_with_multiple_animals(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal, animal4: Animal):
-        """Test getting all animal stats with multiple animals added to 
-        the zoo."""
+        """Test getting all animal stats with multiple animals in the 
+        zoo."""
         zoo1.add_animal(animal1)
         zoo1.add_animal(animal2)
         zoo1.add_animal(animal3)
@@ -167,124 +166,8 @@ class TestZooAnimal:
                                     'Pan troglodytes': 2}
         }
 
-    def test_generate_feeding_plan_no_animals(self, zoo1: Zoo):
-        """Test generating a feeding plan when no animals exist."""
-        feeding_plan = zoo1.generate_feeding_plan()
-        assert feeding_plan == {}
 
-    def test_generate_feeding_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
-        """Test generating a feeding plan when no previous feeding 
-        records and no caretakers exist."""
-        zoo1.add_animal(animal1)
-        feeding_plan = zoo1.generate_feeding_plan()
-        date1 = feeding_plan[animal1.id]['date']
-
-        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
-        assert feeding_plan[animal1.id]['caretaker'] == ''
-
-    def test_generate_feeding_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
-        """Test generating a feeding plan when no previous feeding
-        records but some caretakers exist."""
-        zoo1.add_animal(animal1)
-        zoo1.add_caretaker(caretaker1)
-        feeding_plan = zoo1.generate_feeding_plan()
-        date1 = feeding_plan[animal1.id]['date']
-
-        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
-        assert feeding_plan[animal1.id]['caretaker'] == caretaker1.id
-
-    def test_generate_feeding_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
-                                                caretaker1: Caretaker, caretaker2: Caretaker):
-        """Test generating a feeding plan with multiple animals, 
-        caretakers and previous cleaning records."""
-        zoo1.add_animal(animal1)
-        zoo1.add_animal(animal2)
-        zoo1.add_animal(animal3)
-
-        zoo1.add_caretaker(caretaker1)
-        zoo1.add_caretaker(caretaker2)
-
-        animal1.feed()
-        animal1.feed()
-        animal1.feed()
-        animal2.feed()
-
-        feeding_plan = zoo1.generate_feeding_plan()
-        date1 = feeding_plan[animal1.id]['date']
-        date2 = feeding_plan[animal2.id]['date']
-        date3 = feeding_plan[animal3.id]['date']
-
-        # use this to make test more reliable to pass by setting total
-        # second difference to smaller than 5
-        assert abs(((datetime.datetime.now() +
-                   datetime.timedelta(days=2)) - date1).total_seconds()) < 5
-        assert abs(((datetime.datetime.now() +
-                   datetime.timedelta(days=2)) - date2).total_seconds()) < 5
-        assert abs((datetime.datetime.now() - date3).total_seconds()) < 5
-        assert feeding_plan[animal1.id]['caretaker'] == caretaker1.id
-        assert feeding_plan[animal2.id]['caretaker'] == caretaker2.id
-        assert feeding_plan[animal3.id]['caretaker'] == caretaker1.id
-
-    def test_generate_medical_plan_no_animals(self, zoo1: Zoo):
-        """Test generating a medical plan when no animals exist."""
-        medical_plan = zoo1.generate_medical_plan()
-        assert medical_plan == {}
-
-    def test_generate_medical_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
-        """Test generating a medical plan when no previous medical 
-        records and no caretakers exist."""
-        zoo1.add_animal(animal1)
-        medical_plan = zoo1.generate_medical_plan()
-        date1 = medical_plan[animal1.id]['date']
-
-        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
-        assert medical_plan[animal1.id]['caretaker'] == ''
-
-    def test_generate_medical_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
-        """Test generating a medical plan when no previous medical
-        records but some caretakers exist."""
-        zoo1.add_animal(animal1)
-        zoo1.add_caretaker(caretaker1)
-        medical_plan = zoo1.generate_medical_plan()
-        date1 = medical_plan[animal1.id]['date']
-
-        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
-        assert medical_plan[animal1.id]['caretaker'] == caretaker1.id
-
-    def test_generate_medical_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
-                                                caretaker1: Caretaker, caretaker2: Caretaker):
-        """Test generating a medical plan with multiple animals, 
-        caretakers and previous medical records."""
-        zoo1.add_animal(animal1)
-        zoo1.add_animal(animal2)
-        zoo1.add_animal(animal3)
-
-        zoo1.add_caretaker(caretaker1)
-        zoo1.add_caretaker(caretaker2)
-
-        animal1.vet()
-        animal1.vet()
-        animal1.vet()
-        animal2.vet()
-
-        medical_plan = zoo1.generate_medical_plan()
-        date1 = medical_plan[animal1.id]['date']
-        date2 = medical_plan[animal2.id]['date']
-        date3 = medical_plan[animal3.id]['date']
-
-        # use this to make test more reliable to pass by setting total
-        # second difference to smaller than 5
-        assert abs(((datetime.datetime.now() +
-                   datetime.timedelta(days=35)) - date1).total_seconds()) < 5
-        assert abs(((datetime.datetime.now() +
-                   datetime.timedelta(days=35)) - date2).total_seconds()) < 5
-        assert abs((datetime.datetime.now() - date3).total_seconds()) < 5
-        assert medical_plan[animal1.id]['caretaker'] == caretaker1.id
-        assert medical_plan[animal2.id]['caretaker'] == caretaker2.id
-        assert medical_plan[animal3.id]['caretaker'] == caretaker1.id
-
-
-class TestZooCaretaker:
+class TestZooCaretakerMethods:
     def test_add_caretaker(self, zoo1: Zoo, caretaker1: Caretaker):
         """Test adding a single caretaker."""
         zoo1.add_caretaker(caretaker1)
@@ -440,7 +323,7 @@ class TestZooCaretaker:
         }
 
 
-class TestZooEnclosure:
+class TestZooEnclosureMethods:
     def test_add_enclosure(self, zoo1: Zoo, enclosure1: Enclosure):
         """Test adding a single enclosure."""
         zoo1.add_enclosure(enclosure1)
@@ -593,11 +476,129 @@ class TestZooEnclosure:
 
         assert zoo1.get_enclosure_stats() == {
             'average_animals_per_enclosure': 4 / 3,
-            'enclosures_with_multiple_species': {enclosure2.id: {'Testudinata', 'Pan troglodytes'}},
+            'enclosures_with_multiple_species': {enclosure2.id: ['Pan troglodytes', 'Testudinata']},
             'available_space_per_animal_per_enclosure': {enclosure1.id: enclosure1.area / 1,
                                                          enclosure2.id: enclosure2.area / 3,
                                                          enclosure3.id: enclosure3.area}
         }
+
+
+class TestZooGeneratePlanMethods:
+    def test_generate_feeding_plan_no_animals(self, zoo1: Zoo):
+        """Test generating a feeding plan when no animals exist."""
+        feeding_plan = zoo1.generate_feeding_plan()
+        assert feeding_plan == {}
+
+    def test_generate_feeding_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
+        """Test generating a feeding plan when no previous feeding 
+        records and no caretakers exist."""
+        zoo1.add_animal(animal1)
+        feeding_plan = zoo1.generate_feeding_plan()
+        date1 = feeding_plan[animal1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert feeding_plan[animal1.id]['caretaker'] == ''
+
+    def test_generate_feeding_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
+        """Test generating a feeding plan when no previous feeding
+        records but some caretakers exist."""
+        zoo1.add_animal(animal1)
+        zoo1.add_caretaker(caretaker1)
+        feeding_plan = zoo1.generate_feeding_plan()
+        date1 = feeding_plan[animal1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert feeding_plan[animal1.id]['caretaker'] == caretaker1.id
+
+    def test_generate_feeding_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
+                                                caretaker1: Caretaker, caretaker2: Caretaker):
+        """Test generating a feeding plan with multiple animals, 
+        caretakers and previous cleaning records."""
+        zoo1.add_animal(animal1)
+        zoo1.add_animal(animal2)
+        zoo1.add_animal(animal3)
+
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+
+        animal1.feed()
+        animal1.feed()
+        animal1.feed()
+        animal2.feed()
+
+        feeding_plan = zoo1.generate_feeding_plan()
+        date1 = feeding_plan[animal1.id]['date']
+        date2 = feeding_plan[animal2.id]['date']
+        date3 = feeding_plan[animal3.id]['date']
+
+        # use this to make test more reliable to pass by setting total
+        # second difference to smaller than 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=2)) - date1).total_seconds()) < 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=2)) - date2).total_seconds()) < 5
+        assert abs((datetime.datetime.now() - date3).total_seconds()) < 5
+        assert feeding_plan[animal1.id]['caretaker'] == caretaker1.id
+        assert feeding_plan[animal2.id]['caretaker'] == caretaker2.id
+        assert feeding_plan[animal3.id]['caretaker'] == caretaker1.id
+
+    def test_generate_medical_plan_no_animals(self, zoo1: Zoo):
+        """Test generating a medical plan when no animals exist."""
+        medical_plan = zoo1.generate_medical_plan()
+        assert medical_plan == {}
+
+    def test_generate_medical_plan_no_records_no_caretaker(self, zoo1: Zoo, animal1: Animal):
+        """Test generating a medical plan when no previous medical 
+        records and no caretakers exist."""
+        zoo1.add_animal(animal1)
+        medical_plan = zoo1.generate_medical_plan()
+        date1 = medical_plan[animal1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert medical_plan[animal1.id]['caretaker'] == ''
+
+    def test_generate_medical_plan_no_records(self, zoo1: Zoo, animal1: Animal, caretaker1: Caretaker):
+        """Test generating a medical plan when no previous medical
+        records but some caretakers exist."""
+        zoo1.add_animal(animal1)
+        zoo1.add_caretaker(caretaker1)
+        medical_plan = zoo1.generate_medical_plan()
+        date1 = medical_plan[animal1.id]['date']
+
+        assert abs((datetime.datetime.now() - date1).total_seconds()) < 5
+        assert medical_plan[animal1.id]['caretaker'] == caretaker1.id
+
+    def test_generate_medical_plan_with_records(self, zoo1: Zoo, animal1: Animal, animal2: Animal, animal3: Animal,
+                                                caretaker1: Caretaker, caretaker2: Caretaker):
+        """Test generating a medical plan with multiple animals, 
+        caretakers and previous medical records."""
+        zoo1.add_animal(animal1)
+        zoo1.add_animal(animal2)
+        zoo1.add_animal(animal3)
+
+        zoo1.add_caretaker(caretaker1)
+        zoo1.add_caretaker(caretaker2)
+
+        animal1.vet()
+        animal1.vet()
+        animal1.vet()
+        animal2.vet()
+
+        medical_plan = zoo1.generate_medical_plan()
+        date1 = medical_plan[animal1.id]['date']
+        date2 = medical_plan[animal2.id]['date']
+        date3 = medical_plan[animal3.id]['date']
+
+        # use this to make test more reliable to pass by setting total
+        # second difference to smaller than 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=35)) - date1).total_seconds()) < 5
+        assert abs(((datetime.datetime.now() +
+                   datetime.timedelta(days=35)) - date2).total_seconds()) < 5
+        assert abs((datetime.datetime.now() - date3).total_seconds()) < 5
+        assert medical_plan[animal1.id]['caretaker'] == caretaker1.id
+        assert medical_plan[animal2.id]['caretaker'] == caretaker2.id
+        assert medical_plan[animal3.id]['caretaker'] == caretaker1.id
 
     def test_generate_cleaning_plan_no_enclosures(self, zoo1: Zoo):
         """Test generating a cleaning plan when no enclosures exist."""

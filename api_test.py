@@ -1254,7 +1254,7 @@ class TestZooEnclosure:
         stats = json.loads(requests.get(base_url + '/enclosure/stats').content)
         assert stats == {
             'average_animals_per_enclosure': 4 / 3,
-            'enclosures_with_multiple_species': {post_enclosure2['id']: ['Testudinata', 'Pan troglodytes']},
+            'enclosures_with_multiple_species': {post_enclosure2['id']: ['Pan troglodytes', 'Testudinata']},
             'available_space_per_animal_per_enclosure': {post_enclosure1['id']: post_enclosure1['area'] / 1,
                                                          post_enclosure2['id']: post_enclosure2['area'] / 3,
                                                          post_enclosure3['id']: post_enclosure3['area']}
