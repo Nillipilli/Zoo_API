@@ -88,14 +88,14 @@ class TestAnimal:
         animal1.unset_caretaker()
         assert animal1.caretaker is None
 
-    def test_feed_animal(self, animal1: Animal):
-        """Test feed an animal once."""
+    def test_feed_animal_once(self, animal1: Animal):
+        """Test feeding an animal once."""
         animal1.feed()
         assert len(animal1.feeding_record) == 1
         assert isinstance(animal1.feeding_record[0], datetime)
 
     def test_feed_animal_multiple_times(self, animal1: Animal):
-        """Test feed an animal multiple_times."""
+        """Test feeding an animal multiple times."""
         animal1.feed()
         animal1.feed()
         animal1.feed()
@@ -106,14 +106,14 @@ class TestAnimal:
         for record in animal1.feeding_record:
             assert isinstance(record, datetime)
 
-    def test_vet_animal(self, animal1: Animal):
+    def test_vet_animal_once(self, animal1: Animal):
         """Test vet an animal once."""
         animal1.vet()
         assert len(animal1.medical_record) == 1
         assert isinstance(animal1.medical_record[0], datetime)
 
-    def test_vet_animal_often(self, animal1: Animal):
-        """Test vet an animal multiple_times."""
+    def test_vet_animal_multiple_times(self, animal1: Animal):
+        """Test vet an animal multiple times."""
         animal1.vet()
         animal1.vet()
         animal1.vet()
@@ -140,7 +140,8 @@ class TestAnimal:
         assert new_animal.enclosure == enclosure1
 
     def test_to_json_without_enclosure_and_caretaker(self, animal1: Animal):
-        """Test converting the animal data to json like format."""
+        """Test converting the animal data to json like format with 
+        caretaker and enclosure set to None."""
         assert animal1.to_json() == {
             "id": animal1.id,
             "species_name": animal1.species_name,
@@ -153,9 +154,11 @@ class TestAnimal:
         }
 
     def test_to_json_with_enclosure_and_caretaker(self, animal1: Animal, caretaker1: Caretaker, enclosure1: Enclosure):
-        """Test converting the animal data to json like format."""
+        """Test converting the animal data to json like format with
+        caretaker and enclosure specified."""
         animal1.set_caretaker(caretaker1)
         animal1.set_home(enclosure1)
+
         assert animal1.to_json() == {
             "id": animal1.id,
             "species_name": animal1.species_name,
@@ -168,9 +171,11 @@ class TestAnimal:
         }
 
     def test_to_json_records(self, animal1: Animal):
-        """Test converting the animal data to json like format."""
+        """Test converting the animal data to json like format with
+        feeding and medical records."""
         animal1.feed()
         animal1.vet()
+
         assert animal1.to_json() == {
             "id": animal1.id,
             "species_name": animal1.species_name,

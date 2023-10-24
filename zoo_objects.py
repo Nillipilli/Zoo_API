@@ -25,13 +25,16 @@ class Animal:
 
         If the animal gets moved from one enclosure to another remove
         the animal from the old enclosure's list of animals first."""
-        if isinstance(enclosure, Enclosure):
-            if self.enclosure == enclosure:
-                return
-            elif self.enclosure is not None:
-                self.enclosure.remove_animal(self)
-            self.enclosure = enclosure
-            enclosure.add_animal(self)
+        # guard clause for invalid input
+        if not isinstance(enclosure, Enclosure):
+            return
+
+        if self.enclosure == enclosure:
+            return
+        elif self.enclosure is not None:
+            self.enclosure.remove_animal(self)
+        self.enclosure = enclosure
+        enclosure.add_animal(self)
 
     def unset_home(self) -> None:
         """Remove the animal from the enclosure it used to live in and 
@@ -46,13 +49,15 @@ class Animal:
 
         If the animal gets moved from one caretaker to another remove
         the animal from the old caretakers' list of animals first."""
-        if isinstance(caretaker, Caretaker):
-            if self.caretaker == caretaker:
-                return
-            elif self.caretaker is not None:
-                self.caretaker.remove_animal(self)
-            self.caretaker = caretaker
-            caretaker.add_animal(self)
+        if not isinstance(caretaker, Caretaker):
+            return
+
+        if self.caretaker == caretaker:
+            return
+        elif self.caretaker is not None:
+            self.caretaker.remove_animal(self)
+        self.caretaker = caretaker
+        caretaker.add_animal(self)
 
     def unset_caretaker(self) -> None:
         """Remove the animal from the caretaker that cared for it and 
@@ -80,9 +85,9 @@ class Animal:
 
     def to_json(self) -> dict:
         """To avoid circular references use this custom json encoding,
-        when displaying an Animal.
+        when displaying an animal object.
 
-        Instead of displaying the whole 'enclosure' and 'caretaker' 
+        Instead of displaying the whole enclosure and caretaker 
         objects just show the corresponding ID."""
         return {
             "id": self.id,
@@ -105,15 +110,19 @@ class Caretaker:
 
     def add_animal(self, animal: Animal) -> None:
         """Add an animal, but only if it does not already exist."""
-        if isinstance(animal, Animal):
-            if animal not in self.animals:
-                self.animals.append(animal)
+        if not isinstance(animal, Animal):
+            return
+
+        if animal not in self.animals:
+            self.animals.append(animal)
 
     def remove_animal(self, animal: Animal) -> None:
         """Remove an animal, but only if it exists."""
-        if isinstance(animal, Animal):
-            if animal in self.animals:
-                self.animals.remove(animal)
+        if not isinstance(animal, Animal):
+            return
+
+        if animal in self.animals:
+            self.animals.remove(animal)
 
     def get_animals(self) -> list[Animal]:
         """Return a list of animals that this caretaker cares for."""
@@ -121,9 +130,9 @@ class Caretaker:
 
     def to_json(self) -> dict:
         """To avoid circular references use this custom json encoding,
-        when displaying a Caretaker.
+        when displaying a caretaker object.
 
-        Instead of displaying all 'animal' objects just show the 
+        Instead of displaying all animal objects just show the 
         corresponding IDs."""
         return {
             "id": self.id,
@@ -143,15 +152,19 @@ class Enclosure:
 
     def add_animal(self, animal: Animal) -> None:
         """Add an animal, but only if it does not already exist."""
-        if isinstance(animal, Animal):
-            if animal not in self.animals:
-                self.animals.append(animal)
+        if not isinstance(animal, Animal):
+            return
+
+        if animal not in self.animals:
+            self.animals.append(animal)
 
     def remove_animal(self, animal: Animal) -> None:
         """Remove an animal, but only if it exists."""
-        if isinstance(animal, Animal):
-            if animal in self.animals:
-                self.animals.remove(animal)
+        if not isinstance(animal, Animal):
+            return
+
+        if animal in self.animals:
+            self.animals.remove(animal)
 
     def get_animals(self) -> list[Animal]:
         """Return a list of animals that live in this enclosure."""
@@ -163,9 +176,9 @@ class Enclosure:
 
     def to_json(self) -> dict:
         """To avoid circular references use this custom json encoding,
-        when displaying an Enclosure.
+        when displaying an enclosure object.
 
-        Instead of displaying all 'animal' objects just show the 
+        Instead of displaying all animal objects just show the 
         corresponding IDs."""
         return {
             "id": self.id,
@@ -174,7 +187,3 @@ class Enclosure:
             "animals": [animal.id for animal in self.animals],
             "cleaning_record": self.cleaning_record
         }
-
-
-if __name__ == '__main__':
-    pass

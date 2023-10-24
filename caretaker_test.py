@@ -1,6 +1,6 @@
 import pytest
 
-from zoo_objects import Caretaker, Animal
+from zoo_objects import Animal, Caretaker
 
 
 class TestCaretaker:
@@ -29,7 +29,8 @@ class TestCaretaker:
         assert animal3 in caretaker1.get_animals()
 
     def test_to_json_without_animals(self, caretaker1: Caretaker):
-        """Test converting the caretaker data to json like format."""
+        """Test converting the caretaker data to json like format 
+        without any animals assigned."""
         assert caretaker1.to_json() == {
             "id": caretaker1.id,
             "name": caretaker1.name,
@@ -38,7 +39,8 @@ class TestCaretaker:
         }
 
     def test_to_json_with_animals(self, caretaker1: Caretaker, animal1: Animal, animal2: Animal, animal3: Animal):
-        """Test converting the caretaker data to json like format."""
+        """Test converting the caretaker data to json like format with 
+        animals assigned."""
         animal1.set_caretaker(caretaker1)
         animal2.set_caretaker(caretaker1)
         animal3.set_caretaker(caretaker1)

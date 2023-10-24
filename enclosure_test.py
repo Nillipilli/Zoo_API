@@ -6,7 +6,7 @@ from zoo_objects import Enclosure, Animal
 
 class TestEnclosure:
     def test_get_animals_empty_enclosure(self, enclosure1: Enclosure):
-        """Test retrieving all animals inside an empty enclosure."""
+        """Test retrieving all animals of an empty enclosure."""
         assert len(enclosure1.get_animals()) == 0
 
     def test_get_animals_single_animal(self, enclosure1: Enclosure, animal1: Animal):
@@ -17,7 +17,7 @@ class TestEnclosure:
         assert animal1 in enclosure1.get_animals()
 
     def test_get_animals_multiple_animals(self, enclosure1: Enclosure, animal1: Animal, animal2: Animal, animal3: Animal):
-        """Test retrieving all animals in an enclosure with many 
+        """Test retrieving all animals in an enclosure with multiple 
         animals."""
         animal1.set_home(enclosure1)
         animal2.set_home(enclosure1)
@@ -35,7 +35,7 @@ class TestEnclosure:
         assert isinstance(enclosure1.cleaning_record[0], datetime)
 
     def test_clean_enclosure_multiple_times(self, enclosure1: Enclosure):
-        """Test clean an enclosure multiple_times."""
+        """Test clean an enclosure multiple times."""
         enclosure1.clean()
         enclosure1.clean()
         enclosure1.clean()
@@ -47,7 +47,8 @@ class TestEnclosure:
             assert isinstance(record, datetime)
 
     def test_to_json_without_animals_or_records(self, enclosure1: Enclosure):
-        """Test converting the enclosure data to json like format."""
+        """Test converting the enclosure data to json like format 
+        without any animals living there."""
         assert enclosure1.to_json() == {
             "id": enclosure1.id,
             "name": enclosure1.name,
@@ -57,7 +58,8 @@ class TestEnclosure:
         }
 
     def test_to_json_with_animals(self, enclosure1: Enclosure, animal1: Animal, animal2: Animal, animal3: Animal):
-        """Test converting the enclosure data to json like format."""
+        """Test converting the enclosure data to json like format with 
+        animals living there."""
         animal1.set_home(enclosure1)
         animal2.set_home(enclosure1)
         animal3.set_home(enclosure1)
@@ -70,7 +72,8 @@ class TestEnclosure:
         }
 
     def test_to_json_with_records(self, enclosure1: Enclosure):
-        """Test converting the enclosure data to json like format."""
+        """Test converting the enclosure data to json like format with
+        cleaning records."""
         enclosure1.clean()
         assert enclosure1.to_json() == {
             "id": enclosure1.id,
