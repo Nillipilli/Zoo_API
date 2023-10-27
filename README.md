@@ -58,27 +58,26 @@ test cases without the need of importing them
 
 - **GET** /animals
   - Description: Return a list of all animals with all the details about
-    the animal.
+    each animal.
 
 - **POST** /animal/<animal_id>/feed
-  - Description: Calling this method will feed the animal. Keeps track of the
+  - Description: Calling this method will feed the animal. Keep track of the
     time and date.
 
 - **POST** /animal/<animal_id>/vet
   - Description: Calling this method will trigger a medical checkup for
-    the animal. Keeps track of the time and date.
+    the animal. Keep track of the time and date.
 
 - **POST** /animal/<animal_id>/home
   - Description: Assign a home to the animal (parameters: enclosure_id). Make
     sure to remove the animal from the original enclosure it used to live in.
 
-- **POST** /animal/birth/
+- **POST** /animal/birth
   - Description: A new animal is born (parameters: mother_id). The child lives
     in the same enclosure as the mother and shares the species and common name.
 
-- **POST** /animal/death/
-  - Description: An animal has died (parameters: animal_id). Remove the animal
-    from the zoo, from its enclosure and its caretaker.
+- **POST** /animal/death
+  - Description: An animal has died (parameters: animal_id).
 
 - **GET** /animal/stats
   - Description: Get statistics about the zoo animals:
@@ -102,7 +101,7 @@ test cases without the need of importing them
 
 - **POST** /enclosures/<enclosure_id>/clean
   - Description: Calling this method will trigger a clean-up of the enclosure.
-    Keeps track of the time and date.
+    Keep track of the time and date.
 
 - **GET** /enclosures/<enclosure_id>/animals
   - Description: Get the details of all the animals living in the corresponding
@@ -145,11 +144,6 @@ test cases without the need of importing them
 
 ### Plan Generation
 
-- **GET** /tasks/cleaning
-  - Description: Generate a cleaning plan for all the enclosures. For every
-    enclosure, calculate the next date for cleaning and the person responsible
-    for cleaning.
-
 - **GET** /tasks/medical
   - Description: Generate a medical check-up plan for all the animals. For
     every animal, calculate the next date for a medical check-up.
@@ -157,3 +151,8 @@ test cases without the need of importing them
 - **GET** /tasks/feeding
   - Description: Generate a feeding plan for all the animals. For every animal,
     calculate the next date for feeding and the person responsible for feeding.
+
+- **GET** /tasks/cleaning
+  - Description: Generate a cleaning plan for all the enclosures. For every
+    enclosure, calculate the next date for cleaning and the person responsible
+    for cleaning.
