@@ -168,20 +168,6 @@ class AnimalStats(Resource):
         return jsonify(stats)
 
 
-@api.route('/tasks/feeding')
-class AnimalFeedingPlan(Resource):
-    def get(self):
-        feeding_plan = my_zoo.generate_feeding_plan()
-        return jsonify(feeding_plan)
-
-
-@api.route('/tasks/medical')
-class AnimalMedicalPlan(Resource):
-    def get(self):
-        medical_plan = my_zoo.generate_medical_plan()
-        return jsonify(medical_plan)
-
-
 # ---- Enclosure API calls ----
 
 
@@ -252,13 +238,6 @@ class EnclosureStats(Resource):
         return jsonify(stats)
 
 
-@api.route('/tasks/cleaning')
-class EnclosureCleaningPlan(Resource):
-    def get(self):
-        cleaning_plan = my_zoo.generate_cleaning_plan()
-        return jsonify(cleaning_plan)
-
-
 # ---- Caretaker API calls ----
 
 
@@ -301,7 +280,7 @@ class AllCaretakers(Resource):
         return jsonify(my_zoo.get_all_caretakers())
 
 
-@api.route('/caretaker/<caretaker_id>/care/<animal_id>/')
+@api.route('/caretaker/<caretaker_id>/care/<animal_id>')
 class AssignCaretaker(Resource):
     def post(self, caretaker_id, animal_id):
         targeted_animal = my_zoo.get_animal(animal_id)
@@ -331,6 +310,30 @@ class CaretakerStats(Resource):
     def get(self):
         stats = my_zoo.get_caretaker_stats()
         return jsonify(stats)
+
+
+# ---- Plan Generation API calls ----
+
+
+@api.route('/tasks/feeding')
+class AnimalFeedingPlan(Resource):
+    def get(self):
+        feeding_plan = my_zoo.generate_feeding_plan()
+        return jsonify(feeding_plan)
+
+
+@api.route('/tasks/medical')
+class AnimalMedicalPlan(Resource):
+    def get(self):
+        medical_plan = my_zoo.generate_medical_plan()
+        return jsonify(medical_plan)
+
+
+@api.route('/tasks/cleaning')
+class EnclosureCleaningPlan(Resource):
+    def get(self):
+        cleaning_plan = my_zoo.generate_cleaning_plan()
+        return jsonify(cleaning_plan)
 
 
 if __name__ == '__main__':
