@@ -5,6 +5,10 @@ zoos.
 
 ## Structure
 
+### Test Files
+
+All the test files are inside the directory called 'tests'.
+
 ### zoo_objects.py
 
 In this file the base classes Animal, Caretaker and Enclosure are
